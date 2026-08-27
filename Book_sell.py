@@ -67,6 +67,7 @@ with col_title:
 st.markdown(
     "Welcome to the official peer-to-peer textbook marketplace for PJC students. "
     "Pass down your old books to juniors at affordable prices and buy what you need directly from your seniors!"
+	"© 2026 PJC Textbook Exchange. All rights reserved."
 )
 st.divider()
 

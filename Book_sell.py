@@ -62,6 +62,7 @@ with col_logo:
 with col_title:
     st.title("Prabhu Jagatbandhu College")
     st.subheader("Campus Textbook Exchange Programme")
+	st.caption("© 2026 PJC Textbook Exchange. All rights reserved.")
 
 st.markdown(
     "Welcome to the official peer-to-peer textbook marketplace for PJC students. "

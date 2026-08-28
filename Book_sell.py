@@ -66,7 +66,10 @@ title_color1 = "#2ca02c"
 title_color2 = "#1f77b4"
 
 st.markdown(f"<h1 style='text-align: center; color: {title_color1};'>Textbook Exchange Platform</h1>", unsafe_allow_html=True)
-st.markdown(f"<p style='text-align: center; font-size: 16px; font-style: italic; color: {title_color1}; margin-top: -10px;'>Maintained by</p>", unsafe_allow_html=True)
+
+# Use <em> instead of markdown asterisks so it renders as clean italicized text
+st.markdown(f"<p style='text-align: center; font-size: 16px; font-style: italic; color: {title_color1}; margin-top: -10px;'><em>Maintained by</em></p>", unsafe_allow_html=True)
+
 st.markdown(f"<h1 style='text-align: center; color: {title_color2};'>Prabhu Jagatbandhu College</h1>", unsafe_allow_html=True)
 
 st.markdown("<p style='text-align: center; font-size: 20px; font-weight: 600;'>Campus Textbook Exchange Programme</p>", unsafe_allow_html=True)
@@ -77,11 +80,6 @@ st.markdown(
     "Welcome to the official peer-to-peer textbook marketplace for students. "
     "Pass down your old books to juniors at affordable prices and buy what you need directly from your seniors!"
 )
-st.markdown(
-    "Welcome to the official peer-to-peer textbook marketplace for students. "
-    "Pass down your old books to juniors at affordable prices and buy what you need directly from your seniors!"
-)
-
 st.divider()
 # --- Sidebar Navigation ---
 menu = st.sidebar.selectbox("Navigation", ["Browse Available Books", "List a Book for Sale", "About the Programme"])

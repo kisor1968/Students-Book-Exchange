@@ -3,7 +3,19 @@ import pandas as pd
 from datetime import datetime
 import gspread
 from google.oauth2.service_account import Credentials
-
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-image: url("http://googleusercontent.com/image_collection/image_retrieval/300281055550498173_0");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 # --- Page Configuration ---
 st.set_page_config(
     page_title="PJC Textbook Exchange",

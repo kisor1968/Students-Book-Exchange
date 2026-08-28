@@ -64,15 +64,11 @@ with col_title:
     title_color2 = "#1f77b4"
     st.markdown(f"<h1 style='color: {title_color1};'>Textbook Exchange Platform</h1>", unsafe_allow_html=True)
     
-    # Forced absolute centering with !important
-    st.markdown(
-        f"<div style='width: 100%; text-align: center !important;'><span style='color: {title_color1}; font-size: 16px; font-style: italic; display: inline-block;'>Maintained by</span></div>", 
-        unsafe_allow_html=True
-    )
+    # Use native Streamlit caption/text formatting—no HTML, no CSS to fight
+    st.caption("Maintained by Prabhu Jagatbandhu College")
     
     st.markdown(f"<h1 style='color: {title_color2};'>Prabhu Jagatbandhu College</h1>", unsafe_allow_html=True)
     st.subheader("Campus Textbook Exchange Programme")
-    st.caption("© 2026 PJC Textbook Exchange. All rights reserved.")
 
 st.markdown(
     "Welcome to the official peer-to-peer textbook marketplace for students. "

@@ -62,7 +62,7 @@ with col_logo:
 with col_title:
     title_color = "#2ca02c"
     st.markdown(f"<h1 style='color: {title_color};'>Textbook Exchange Platform</h1>", unsafe_allow_html=True)
-	st.markdown(f"<h1 style='color: {title_color};'>Prabhu Jagatbandhu College</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h1 style='color: {title_color};'>Prabhu Jagatbandhu College</h1>", unsafe_allow_html=True)
     #st.title("Prabhu Jagatbandhu College")
     st.subheader("Campus Textbook Exchange Programme")
     st.caption("© 2026 PJC Textbook Exchange. All rights reserved.")

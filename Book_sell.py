@@ -74,6 +74,10 @@ st.markdown(
     "Welcome to the official peer-to-peer textbook marketplace for PJC students. "
     "Pass down your old books to juniors at affordable prices and buy what you need directly from your seniors!"
 )
+st.markdown(
+    '<p style="color: #666666; font-size: 13px; text-align: center; margin-top: 30px;">© 2026 Prabhu Jagatbandhu College. All rights reserved.</p>',
+    unsafe_allow_html=True,
+)
 st.divider()
 
 # --- Sidebar Navigation ---

@@ -18,7 +18,6 @@ SCOPES = [
 ]
 
 def get_gspread_client():
-    # Pulls credentials directly from st.secrets matching your TOML structure
     creds_dict = dict(st.secrets["connections"]["gsheets"])
     creds_dict.pop("spreadsheet", None)
     creds_dict.pop("type", None)
@@ -38,8 +37,6 @@ def update_data(df):
     client = get_gspread_client()
     spreadsheet_url = "https://docs.google.com/spreadsheets/d/1nOYLY09PtuhZYuAEKED8Y5jSKTz1e4Bulh4mWtEsJbY/edit?gid=0#gid=0"
     sheet = client.open_by_url(spreadsheet_url).worksheet("Sheet1")
-    
-    # Clear and rewrite the sheet with updated dataframe values
     sheet.clear()
     sheet.update([df.columns.values.tolist()] + df.values.tolist())
 
@@ -50,32 +47,28 @@ if "books_db" not in st.session_state:
         st.session_state.books_db = pd.DataFrame()
         st.error(f"Error loading initial data: {e}")
 
-# --- Centered Header Section (Logo + Titles) ---
-# Using columns just to create a center alignment trick for the logo image
-_, col_center_logo, _ = st.columns([2, 1, 2])
-with col_center_logo:
+# --- Header Section with Logo ---
+col_logo, col_title = st.columns([1, 5])
+
+with col_logo:
     try:
         st.image("logo_pjc.png", width=110)
     except Exception:
         st.warning("Logo file not found. Please save 'logo_pjc.png' in the app directory.")
 
-title_color1 = "#2ca02c"
-title_color2 = "#1f77b4"
-
-st.markdown(f"<h1 style='text-align: center; color: {title_color1};'>Textbook Exchange Platform</h1>", unsafe_allow_html=True)
-st.markdown(
-    f"<p style='text-align: center; font-size: 16px; font-style: italic; color: {title_color1}; margin-top: -10px;'>Maintained by</p>", 
-    unsafe_allow_html=True
-)
-st.markdown(f"<h1 style='text-align: center; color: {title_color2};'>Prabhu Jagatbandhu College</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size: 20px; font-weight: 600;'>Campus Textbook Exchange Programme</p>", unsafe_allow_html=True)
-
-st.divider()
+with col_title:
+    title_color1 = "#2ca02c"
+    title_color2 = "#1f77b4"
+    st.markdown(f"<h1 style='color: {title_color1}; margin-bottom: 0px;'>Textbook Exchange Platform</h1>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size: 16px; font-style: italic; color: {title_color1}; margin-top: 0px;'>Maintained by</p>", unsafe_allow_html=True)
+    st.markdown(f"<h1 style='color: {title_color2}; margin-top: -10px;'>Prabhu Jagatbandhu College</h1>", unsafe_allow_html=True)
+    st.subheader("Campus Textbook Exchange Programme")
 
 st.markdown(
-    "Welcome to the official peer-to-peer textbook marketplace for students. "
+    "Welcome to the official peer-to-peer textbook marketplace for PJC students. "
     "Pass down your old books to juniors at affordable prices and buy what you need directly from your seniors!"
 )
+st.divider()
 
 # --- Sidebar Navigation ---
 menu = st.sidebar.selectbox("Navigation", ["Browse Available Books", "List a Book for Sale", "About the Programme"])
@@ -96,13 +89,11 @@ if menu == "Browse Available Books":
     if df is None or df.empty or "Status" not in df.columns:
         st.info("No books are currently listed.")
     else:
-        # Filter dataframe to show ONLY available books for students
         available_df = df[df["Status"].astype(str).str.lower() == "available"]
         
         if available_df.empty:
             st.info("No active books available right now. Check back later or list your old book!")
         else:
-            # Search & Filters
             col1, col2, col3 = st.columns(3)
             
             with col1:
@@ -128,12 +119,12 @@ if menu == "Browse Available Books":
                 
             st.markdown(f"### Showing {len(filtered_df)} available book(s)")
             
-            # Display Listings with "Mark as Sold" Option
             for index, row in filtered_df.iterrows():
                 with st.container():
                     col_a, col_b, col_c = st.columns([2.5, 1.2, 1])
                     with col_a:
-                        st.markdown(f"#### {row['Title']} by *{row['Author']}*")
+                        # Fixed: Replaced markdown asterisks with safe HTML italics to prevent stray * symbols
+                        st.markdown(f"#### {row['Title']} by <em>{row['Author']}</em>", unsafe_allow_html=True)
                         st.caption(f"**Department:** {row['Department']} | **Semester:** {row['Semester']} | **Condition:** {row['Condition']}")
                         st.write(f"🏷️ **Price:** ₹{row['Price (₹)']}")
                     with col_b:
@@ -141,7 +132,6 @@ if menu == "Browse Available Books":
                         st.info(f"📱 Contact:\n`{row['Contact (WhatsApp/Email)']}`")
                     with col_c:
                         st.markdown("### ") 
-                        # Update Status to "Sold" using direct update handler
                         if st.button("Mark as Sold", key=f"sold_{index}"):
                             try:
                                 full_df = load_data()
@@ -223,6 +213,3 @@ else:
 st.markdown("---")
 st.markdown("<p style='text-align: center; color: gray;'>Prabhu Jagatbandhu College • Student Welfare Initiative</p>", unsafe_allow_html=True)
 
-# --- Footer ---
-st.markdown("---")
-st.markdown("<p style='text-align: center; color: gray;'>Prabhu Jagatbandhu College • Student Welfare Initiative</p>", unsafe_allow_html=True)

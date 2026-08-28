@@ -65,7 +65,7 @@ with col_title:
     '<p style="color: #2E7D32; font-style: italic; margin-bottom: 2px;">Maintained by</p>',
     unsafe_allow_html=True,
 )
-st.markdown(
+    st.markdown(
     '<h1 style="color: #1E88E5; margin-top: 0px;">Prabhu Jagatbandhu College</h1>',
     unsafe_allow_html=True,
 )

@@ -73,7 +73,7 @@ with col_title:
     '<p style="color: #1f77b4; font-size: 16px; margin-top: -15px;">Andul-Mouri, Howrah, Pin- 711302</p>',
     unsafe_allow_html=True,
 )
-    #st.subheader("#### Andul-Mouri, Howrah, Pin- 711302")
+    
     st.subheader("Campus Textbook Exchange Programme")
 
 st.markdown(
@@ -81,7 +81,7 @@ st.markdown(
     "Pass down your old books to juniors at affordable prices and buy what you need directly from your seniors!"
 )
 st.markdown(
-    '<p style="color: #666666; font-size: 13px; text-align: center; margin-top: 30px;">© 2026 Prabhu Jagatbandhu College. All rights reserved.</p>',
+    '<p style="color: #666666; font-size: 13px; text-align: center; margin-top: 30px;">© Dr. Kisor Mukhopadhyay, Prabhu Jagatbandhu College. All rights reserved.</p>',
     unsafe_allow_html=True,
 )
 st.divider()

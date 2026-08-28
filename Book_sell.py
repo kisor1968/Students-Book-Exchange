@@ -50,28 +50,21 @@ if "books_db" not in st.session_state:
         st.session_state.books_db = pd.DataFrame()
         st.error(f"Error loading initial data: {e}")
 
-# --- Header Section with Logo ---
-col_logo, col_title = st.columns([1, 5])
-
-with col_logo:
+# --- Centered Header Section (Logo + Titles) ---
+# Using columns just to create a center alignment trick for the logo image
+_, col_center_logo, _ = st.columns([2, 1, 2])
+with col_center_logo:
     try:
         st.image("logo_pjc.png", width=110)
     except Exception:
         st.warning("Logo file not found. Please save 'logo_pjc.png' in the app directory.")
 
-# Remove the columns block for the title section entirely, 
-# and let everything center naturally on the page:
-
 title_color1 = "#2ca02c"
 title_color2 = "#1f77b4"
 
 st.markdown(f"<h1 style='text-align: center; color: {title_color1};'>Textbook Exchange Platform</h1>", unsafe_allow_html=True)
-
-# Use <em> instead of markdown asterisks so it renders as clean italicized text
-st.markdown(f"<p style='text-align: center; font-size: 16px; font-style: italic; color: {title_color1}; margin-top: -10px;'><em>Maintained by</em></p>", unsafe_allow_html=True)
-
+st.markdown(f"<p style='text-align: center; font-size: 16px; font-style: italic; color: {title_color1}; margin-top: -10px;'>Maintained by</p>", unsafe_allow_html=True)
 st.markdown(f"<h1 style='text-align: center; color: {title_color2};'>Prabhu Jagatbandhu College</h1>", unsafe_allow_html=True)
-
 st.markdown("<p style='text-align: center; font-size: 20px; font-weight: 600;'>Campus Textbook Exchange Programme</p>", unsafe_allow_html=True)
 
 st.divider()
@@ -80,7 +73,7 @@ st.markdown(
     "Welcome to the official peer-to-peer textbook marketplace for students. "
     "Pass down your old books to juniors at affordable prices and buy what you need directly from your seniors!"
 )
-#st.divider()
+
 # --- Sidebar Navigation ---
 menu = st.sidebar.selectbox("Navigation", ["Browse Available Books", "List a Book for Sale", "About the Programme"])
 
@@ -171,13 +164,13 @@ elif menu == "List a Book for Sale":
             title = st.text_input("Book Title*")
             author = st.text_input("Author / Publisher*")
             department = st.selectbox("Department / Stream*", [
-                "Physics", "Mathematics", "Chemistry", "Computer Science","Zoology", "Botany", "Food & Nutrition", "Electronics", 
-                "Bengali", "English", "History", "Geography", "Philosophy", "Physical Education", "Sanskrit", "Education", "Sociology", 			"Commerce / Accountancy", "General / Other"
+                "Physics", "Mathematics", "Chemistry", "Computer Science", "Zoology", "Botany", "Food & Nutrition", "Electronics", 
+                "Bengali", "English", "History", "Geography", "Philosophy", "Physical Education", "Sanskrit", "Education", "Sociology", "Commerce / Accountancy", "General / Other"
             ])
             semester = st.selectbox("Target Semester*", [
                 "1st Semester", "2nd Semester", "3rd Semester", 
                 "4th Semester", "5th Semester", "6th Semester",
-		"7th Semester", "8th Semester"
+                "7th Semester", "8th Semester"
             ])
             
         with col2:
@@ -222,6 +215,10 @@ elif menu == "List a Book for Sale":
 else:
     st.header("ℹ️ About PJC Textbook Exchange")
     st.write("The Campus Textbook Exchange Programme helps PJC students save money by reusing books sustainably.")
+
+# --- Footer ---
+st.markdown("---")
+st.markdown("<p style='text-align: center; color: gray;'>Prabhu Jagatbandhu College • Student Welfare Initiative</p>", unsafe_allow_html=True)
 
 # --- Footer ---
 st.markdown("---")

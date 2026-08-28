@@ -68,7 +68,7 @@ with col_title:
     #st.title("Prabhu Jagatbandhu College")
     st.subheader("Campus Textbook Exchange Programme")
     st.caption("© 2026 PJC Textbook Exchange. All rights reserved.")
-
+st.markdown(f"<p align='center'><em>Maintained by</em></p>", unsafe_allow_html=True)
 st.markdown(
     "Welcome to the official peer-to-peer textbook marketplace for students. "
     "Pass down your old books to juniors at affordable prices and buy what you need directly from your seniors!"

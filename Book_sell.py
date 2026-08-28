@@ -61,8 +61,14 @@ with col_title:
     title_color2 = "#1f77b4"
     title_color3 = "#1E88E5"
     st.markdown(f"<h1 style='color: {title_color1}; margin-bottom: 0px;'>Textbook Exchange Platform</h1>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size: 16px; font-style: italic; color: {title_color3}; margin-top: 0px;'>Maintained by:</p>", unsafe_allow_html=True)
-    st.markdown(f"<h1 style='color: {title_color2}; margin-top: -10px;'>Prabhu Jagatbandhu College</h1>", unsafe_allow_html=True)
+    st.markdown(
+    '<p style="color: #2E7D32; font-style: italic; margin-bottom: 2px;">Maintained by</p>',
+    unsafe_allow_html=True,
+)
+st.markdown(
+    '<h1 style="color: #1E88E5; margin-top: 0px;">Prabhu Jagatbandhu College</h1>',
+    unsafe_allow_html=True,
+)
     st.markdown(
     '<p style="color: #1f77b4; font-size: 16px; margin-top: -15px;">Andul-Mouri, Howrah, Pin- 711302</p>',
     unsafe_allow_html=True,

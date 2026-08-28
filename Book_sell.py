@@ -60,9 +60,9 @@ with col_logo:
         st.warning("Logo file not found. Please save 'logo_pjc.png' in the app directory.")
 
 with col_title:
-	#title_color = "#FF4B4B"  
-	#st.markdown(f"<h1 style='color: {title_color};'>PJC Textbook Exchange</h1>", unsafe_allow_html=True)
-    st.title("Prabhu Jagatbandhu College")
+	title_color = "#FF4B4B"  
+	st.markdown(f"<h1 style='color: {title_color};'>PJC Textbook Exchange</h1>", unsafe_allow_html=True)
+    #st.title("Prabhu Jagatbandhu College")
     st.subheader("Campus Textbook Exchange Programme")
 	#st.caption("© 2026 PJC Textbook Exchange. All rights reserved.")
 

@@ -63,26 +63,24 @@ with col_title:
     title_color1 = "#2ca02c"
     title_color2 = "#1f77b4"
     st.markdown(f"<h1 style='color: {title_color1};'>Textbook Exchange Platform</h1>", unsafe_allow_html=True)
-    #st.write(f"<div align='center' style='color: {title_color1}; font-style: italic; font-size: 16px;'>Maintained by</div>", unsafe_allow_html=True)
     st.markdown(f"<h1 style='color: {title_color2};'>Prabhu Jagatbandhu College</h1>", unsafe_allow_html=True)
-    #st.title("Prabhu Jagatbandhu College")
     st.subheader("Campus Textbook Exchange Programme")
     st.caption("© 2026 PJC Textbook Exchange. All rights reserved.")
-# Define your color clearly outside the columns if it isn't already
-title_color1 = "#2ca02c"  
 
-# Place this completely below your st.columns(...) block:
+# --- OUTSIDE THE COLUMNS BLOCK (Align left to the edge) ---
+title_color1 = "#2ca02c"
+
 st.markdown(
     f"<p style='text-align: center; color: {title_color1}; font-size: 16px; font-style: italic; margin-top: 10px;'>Maintained by</p>", 
     unsafe_allow_html=True
 )
+
 st.markdown(
     "Welcome to the official peer-to-peer textbook marketplace for students. "
     "Pass down your old books to juniors at affordable prices and buy what you need directly from your seniors!"
-	"  " "© 2026 PJC Textbook Exchange. All rights reserved."
 )
-st.divider()
 
+st.divider()
 # --- Sidebar Navigation ---
 menu = st.sidebar.selectbox("Navigation", ["Browse Available Books", "List a Book for Sale", "About the Programme"])
 

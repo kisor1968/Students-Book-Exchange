@@ -63,7 +63,7 @@ with col_title:
     title_color1 = "#2ca02c"
     title_color2 = "#1f77b4"
     st.markdown(f"<h1 style='color: {title_color1};'>Textbook Exchange Platform</h1>", unsafe_allow_html=True)
-	st.markdown(f"<h1 style='color: {title_color1};'>Maintained by</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h1 style='color: {title_color1};'>Maintained by</h1>", unsafe_allow_html=True)
     st.markdown(f"<h1 style='color: {title_color2};'>Prabhu Jagatbandhu College</h1>", unsafe_allow_html=True)
     #st.title("Prabhu Jagatbandhu College")
     st.subheader("Campus Textbook Exchange Programme")

@@ -6,11 +6,12 @@ from google.oauth2.service_account import Credentials
 st.markdown(
     """
     <style>
-    [data-testid="stAppViewContainer"] {
+    [data-testid="stAppViewContainer"] > .main {
         background-image: url("http://googleusercontent.com/image_collection/image_retrieval/300281055550498173_0");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
+        background-attachment: local;
     }
     [data-testid="stHeader"] {
         background-color: rgba(0,0,0,0);
@@ -18,6 +19,7 @@ st.markdown(
     </style>
     """,
     unsafe_allow_html=True,
+)
 )
 # --- Page Configuration ---
 st.set_page_config(

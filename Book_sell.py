@@ -64,7 +64,7 @@ with col_title:
     title_color2 = "#1f77b4"
     st.markdown(f"<h1 style='color: {title_color1};'>Textbook Exchange Platform</h1>", unsafe_allow_html=True)
     st.markdown(
-    f"<div style='text-align: center;'><h3 style='color: {title_color1}; font-size: 18px; display: inline-block;'>*Maintained by*</h3></div>", 
+    f"<p style='text-align: center; color: {title_color1}; font-size: 18px;'><em>Maintained by</em></p>", 
     unsafe_allow_html=True
 )
     st.markdown(f"<h1 style='color: {title_color2};'>Prabhu Jagatbandhu College</h1>", unsafe_allow_html=True)

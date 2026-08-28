@@ -63,6 +63,7 @@ with col_title:
     st.markdown(f"<h1 style='color: {title_color1}; margin-bottom: 0px;'>Textbook Exchange Platform</h1>", unsafe_allow_html=True)
     st.markdown(f"<p style='font-size: 16px; font-style: italic; color: {title_color3}; margin-top: 0px;'>Maintained by:</p>", unsafe_allow_html=True)
     st.markdown(f"<h1 style='color: {title_color2}; margin-top: -10px;'>Prabhu Jagatbandhu College</h1>", unsafe_allow_html=True)
+    st.subheader("Andul-Mouri, Howrah, Pin- 711302")
     st.subheader("Campus Textbook Exchange Programme")
 
 st.markdown(

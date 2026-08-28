@@ -59,17 +59,24 @@ with col_logo:
     except Exception:
         st.warning("Logo file not found. Please save 'logo_pjc.png' in the app directory.")
 
-with col_title:
-    title_color1 = "#2ca02c"
-    title_color2 = "#1f77b4"
-    st.markdown(f"<h1 style='color: {title_color1};'>Textbook Exchange Platform</h1>", unsafe_allow_html=True)
-    
-    # Use native Streamlit caption/text formatting—no HTML, no CSS to fight
-    st.caption("Maintained by Prabhu Jagatbandhu College")
-    
-    st.markdown(f"<h1 style='color: {title_color2};'>Prabhu Jagatbandhu College</h1>", unsafe_allow_html=True)
-    st.subheader("Campus Textbook Exchange Programme")
+# Remove the columns block for the title section entirely, 
+# and let everything center naturally on the page:
 
+title_color1 = "#2ca02c"
+title_color2 = "#1f77b4"
+
+st.markdown(f"<h1 style='text-align: center; color: {title_color1};'>Textbook Exchange Platform</h1>", unsafe_allow_html=True)
+st.markdown(f"<p style='text-align: center; font-size: 16px; font-style: italic; color: {title_color1}; margin-top: -10px;'>Maintained by</p>", unsafe_allow_html=True)
+st.markdown(f"<h1 style='text-align: center; color: {title_color2};'>Prabhu Jagatbandhu College</h1>", unsafe_allow_html=True)
+
+st.markdown("<p style='text-align: center; font-size: 20px; font-weight: 600;'>Campus Textbook Exchange Programme</p>", unsafe_allow_html=True)
+
+st.divider()
+
+st.markdown(
+    "Welcome to the official peer-to-peer textbook marketplace for students. "
+    "Pass down your old books to juniors at affordable prices and buy what you need directly from your seniors!"
+)
 st.markdown(
     "Welcome to the official peer-to-peer textbook marketplace for students. "
     "Pass down your old books to juniors at affordable prices and buy what you need directly from your seniors!"

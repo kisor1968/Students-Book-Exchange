@@ -80,7 +80,7 @@ st.markdown(
     "Welcome to the official peer-to-peer textbook marketplace for students. "
     "Pass down your old books to juniors at affordable prices and buy what you need directly from your seniors!"
 )
-st.divider()
+#st.divider()
 # --- Sidebar Navigation ---
 menu = st.sidebar.selectbox("Navigation", ["Browse Available Books", "List a Book for Sale", "About the Programme"])
 

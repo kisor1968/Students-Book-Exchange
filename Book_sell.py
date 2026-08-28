@@ -20,7 +20,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-)
+
 # --- Page Configuration ---
 st.set_page_config(
     page_title="PJC Textbook Exchange",

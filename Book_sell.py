@@ -133,7 +133,7 @@ with col_title:
     #unsafe_allow_html=True,
 #)
     st.markdown(
-    '<div style="color: #1f77b4; font-size: 32px; font-weight: bold; margin-top:'
+    '<div style="color: #0D47A1; font-size: 32px; font-weight: bold; margin-top:'
     ' 0px;">Prabhu Jagatbandhu College</div>',
     unsafe_allow_html=True,
 )

@@ -129,7 +129,7 @@ with col_title:
     unsafe_allow_html=True,
 )
     st.markdown(
-    '<h1 style="color: #1E88E5; margin-top: 0px;">Prabhu Jagatbandhu College</h1>',
+    '<h1 style="color: #1f77b4; margin-top: 0px;">Prabhu Jagatbandhu College</h1>',
     unsafe_allow_html=True,
 )
     st.markdown(

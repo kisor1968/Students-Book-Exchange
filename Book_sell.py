@@ -3,7 +3,32 @@ import pandas as pd
 from datetime import datetime
 import gspread
 from google.oauth2.service_account import Credentials
+import base64
 
+def set_background(image_file):
+  with open(image_file, "rb") as f:
+    encoded_string = base64.b64encode(f.read()).decode()
+  st.markdown(
+      f"""
+        <style>
+        .stApp {{
+            background-image: url("data:image/jpeg;base64,{encoded_string}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }}
+        [data-testid="stHeader"] {{
+            background-color: rgba(0,0,0,0) !important;
+        }}
+        </style>
+        """,
+      unsafe_allow_html=True,
+  )
+
+
+# Call the function with your image filename
+set_background("background.jpg")
 st.markdown(
     """
     <style>

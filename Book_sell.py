@@ -1,15 +1,22 @@
-import streamlit as st
-import pandas as pd
+import base64
 from datetime import datetime
 import gspread
 from google.oauth2.service_account import Credentials
-import base64
+import pandas as pd
+import streamlit as st
+
+# --- Page Configuration ---
+st.set_page_config(
+    page_title="PJC Textbook Exchange", page_icon="📚", layout="wide"
+)
+
 
 def set_background(image_file):
-  with open(image_file, "rb") as f:
-    encoded_string = base64.b64encode(f.read()).decode()
-  st.markdown(
-      f"""
+  try:
+    with open(image_file, "rb") as f:
+      encoded_string = base64.b64encode(f.read()).decode()
+    st.markdown(
+        f"""
         <style>
         .stApp {{
             background-image: url("data:image/jpeg;base64,{encoded_string}");
@@ -21,279 +28,370 @@ def set_background(image_file):
         [data-testid="stHeader"] {{
             background-color: rgba(0,0,0,0) !important;
         }}
+        .main {{
+            background-color: transparent !important;
+        }}
         </style>
         """,
-      unsafe_allow_html=True,
-  )
+        unsafe_allow_html=True,
+    )
+  except Exception:
+    pass
 
 
-# Call the function with your image filename
+# Call the function with your image filename (change to background.jpg if needed)
 set_background("background.png")
-st.markdown(
-    """
-    <style>
-    [data-testid="stAppViewContainer"] {
-        background-image: url("background.jpg");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-    }
-    [data-testid="stHeader"] {
-        background-color: rgba(0,0,0,0) !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-st.markdown(
-    """
-    <style>
-    [data-testid="stAppViewContainer"] {
-        background-image: url("http://googleusercontent.com/image_collection/image_retrieval/300281055550498173_0");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-    }
-    [data-testid="stHeader"] {
-        background-color: rgba(0,0,0,0) !important;
-    }
-    .main {
-        background-color: transparent !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-# --- Page Configuration ---
-st.set_page_config(
-    page_title="PJC Textbook Exchange",
-    page_icon="📚",
-    layout="wide"
-)
 
 # --- Direct Google Sheets Connection Setup ---
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive"
+    "https://www.googleapis.com/auth/drive",
 ]
 
+
 def get_gspread_client():
-    creds_dict = dict(st.secrets["connections"]["gsheets"])
-    creds_dict.pop("spreadsheet", None)
-    creds_dict.pop("type", None)
-    
-    creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
-    client = gspread.authorize(creds)
-    return client
+  creds_dict = dict(st.secrets["connections"]["gsheets"])
+  creds_dict.pop("spreadsheet", None)
+  creds_dict.pop("type", None)
+
+  creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+  client = gspread.authorize(creds)
+  return client
+
 
 def load_data():
-    client = get_gspread_client()
-    spreadsheet_url = "https://docs.google.com/spreadsheets/d/1nOYLY09PtuhZYuAEKED8Y5jSKTz1e4Bulh4mWtEsJbY/edit?gid=0#gid=0"
-    sheet = client.open_by_url(spreadsheet_url).worksheet("Sheet1")
-    data = sheet.get_all_records()
-    return pd.DataFrame(data)
+  client = get_gspread_client()
+  spreadsheet_url = "https://docs.google.com/spreadsheets/d/1nOYLY09PtuhZYuAEKED8Y5jSKTz1e4Bulh4mWtEsJbY/edit?gid=0#gid=0"
+  sheet = client.open_by_url(spreadsheet_url).worksheet("Sheet1")
+  data = sheet.get_all_records()
+  return pd.DataFrame(data)
+
 
 def update_data(df):
-    client = get_gspread_client()
-    spreadsheet_url = "https://docs.google.com/spreadsheets/d/1nOYLY09PtuhZYuAEKED8Y5jSKTz1e4Bulh4mWtEsJbY/edit?gid=0#gid=0"
-    sheet = client.open_by_url(spreadsheet_url).worksheet("Sheet1")
-    sheet.clear()
-    sheet.update([df.columns.values.tolist()] + df.values.tolist())
+  client = get_gspread_client()
+  spreadsheet_url = "https://docs.google.com/spreadsheets/d/1nOYLY09PtuhZYuAEKED8Y5jSKTz1e4Bulh4mWtEsJbY/edit?gid=0#gid=0"
+  sheet = client.open_by_url(spreadsheet_url).worksheet("Sheet1")
+  sheet.clear()
+  sheet.update([df.columns.values.tolist()] + df.values.tolist())
+
 
 if "books_db" not in st.session_state:
-    try:
-        st.session_state.books_db = load_data()
-    except Exception as e:
-        st.session_state.books_db = pd.DataFrame()
-        st.error(f"Error loading initial data: {e}")
+  try:
+    st.session_state.books_db = load_data()
+  except Exception as e:
+    st.session_state.books_db = pd.DataFrame()
+    st.error(f"Error loading initial data: {e}")
 
 # --- Header Section with Logo ---
 col_logo, col_title = st.columns([1, 5])
 
 with col_logo:
-    try:
-        st.image("logo_pjc.png", width=110)
-    except Exception:
-        st.warning("Logo file not found. Please save 'logo_pjc.png' in the app directory.")
+  try:
+    st.image("logo_pjc.png", width=110)
+  except Exception:
+    st.warning(
+        "Logo file not found. Please save 'logo_pjc.png' in the app directory."
+    )
 
 with col_title:
-    #title_color1 = "#2ca02c"
-    title_color1 = "#145A32"
-    title_color2 = "#1E88E5"
-    title_color3 = "#1E88E5"
-    st.markdown(f"<h1 style='color: {title_color1}; margin-bottom: 0px;'>Textbook Exchange Platform</h1>", unsafe_allow_html=True)
-    st.markdown(
-    '<p style="color: #8C6D36; font-style: italic; margin-bottom: 2px;">Maintained by:</p>',
-    unsafe_allow_html=True,
-)
-    #st.markdown(
-    #'<h1 style="color: #1f77b4; margin-top: 0px;">"### Prabhu Jagatbandhu College"</h1>',
-    #unsafe_allow_html=True,
-#)
-    st.markdown(
-    '<div style="color: #8C6D36; font-size: 32px; font-weight: bold; margin-top:'
-    ' 0px;">Prabhu Jagatbandhu College</div>',
-    unsafe_allow_html=True,
-)
-    st.markdown(
-    '<p style="color: #8C6D36; font-size: 16px; margin-top: -15px;">Andul-Mouri, Howrah, Pin- 711302</p>',
-    unsafe_allow_html=True,
-)
-    
-    st.subheader("Campus Textbook Exchange Programme")
+  title_color1 = "#145A32"
+  st.markdown(
+      f"<h1 style='color: {title_color1}; margin-bottom: 0px;'>Textbook"
+      " Exchange Platform</h1>",
+      unsafe_allow_html=True,
+  )
+  st.markdown(
+      '<p style="color: #8C6D36; font-style: italic; margin-bottom:'
+      ' 2px;">Maintained by:</p>',
+      unsafe_allow_html=True,
+  )
+  st.markdown(
+      '<div style="color: #8C6D36; font-size: 32px; font-weight: bold; margin-top:'
+      ' 0px;">Prabhu Jagatbandhu College</div>',
+      unsafe_allow_html=True,
+  )
+  st.markdown(
+      '<p style="color: #8C6D36; font-size: 16px; margin-top: -15px;">Andul-Mouri,'
+      " Howrah, Pin- 711302</p>",
+      unsafe_allow_html=True,
+  )
+
+  st.subheader("Campus Textbook Exchange Programme")
 
 st.markdown(
     "Welcome to the official peer-to-peer textbook marketplace for students. "
-    "Pass down your old books to juniors at affordable prices and buy what you need directly from your seniors!"
+    "Pass down your old books to juniors at affordable prices and buy what you"
+    " need directly from your seniors!"
 )
 st.markdown(
-    '<p style="color: #666666; font-size: 13px; text-align: center; margin-top: 30px;">© Dr. Kisor Mukhopadhyay, Prabhu Jagatbandhu College. All rights reserved.</p>',
+    '<p style="color: #666666; font-size: 13px; text-align: center; margin-top:'
+    " 30px;'>© Dr. Kisor Mukhopadhyay, Prabhu Jagatbandhu College. All rights"
+    " reserved.</p>",
     unsafe_allow_html=True,
 )
 st.divider()
 
 # --- Sidebar Navigation ---
-menu = st.sidebar.selectbox("Navigation", ["Browse Available Books", "List a Book for Sale", "About the Programme"])
+menu = st.sidebar.selectbox(
+    "Navigation",
+    ["Browse Available Books", "List a Book for Sale", "About the Programme"],
+)
 
 # ==========================================
 # 1. BROWSE & MARK AS SOLD SECTION
 # ==========================================
 if menu == "Browse Available Books":
-    st.header("📖 Browse Available Textbooks")
-    
-    try:
-        st.session_state.books_db = load_data()
-    except Exception:
-        pass
-        
-    df = st.session_state.books_db
-    
-    if df is None or df.empty or "Status" not in df.columns:
-        st.info("No books are currently listed.")
+  st.header("📖 Browse Available Textbooks")
+
+  try:
+    st.session_state.books_db = load_data()
+  except Exception:
+    pass
+
+  df = st.session_state.books_db
+
+  if df is None or df.empty or "Status" not in df.columns:
+    st.info("No books are currently listed.")
+  else:
+    available_df = df[df["Status"].astype(str).str.lower() == "available"]
+
+    if available_df.empty:
+      st.info(
+          "No active books available right now. Check back later or list your"
+          " old book!"
+      )
     else:
-        available_df = df[df["Status"].astype(str).str.lower() == "available"]
-        
-        if available_df.empty:
-            st.info("No active books available right now. Check back later or list your old book!")
-        else:
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                search_query = st.text_input("🔍 Search by Title or Author", "").lower()
-            with col2:
-                departments = ["All"] + sorted(available_df["Department"].dropna().unique().tolist())
-                selected_dept = st.selectbox("Filter by Department", departments)
-            with col3:
-                semesters = ["All"] + sorted(available_df["Semester"].dropna().unique().tolist())
-                selected_sem = st.selectbox("Filter by Semester", semesters)
-                
-            filtered_df = available_df.copy()
-            
-            if search_query:
-                filtered_df = filtered_df[
-                    filtered_df["Title"].astype(str).str.lower().str.contains(search_query, na=False) | 
-                    filtered_df["Author"].astype(str).str.lower().str.contains(search_query, na=False)
-                ]
-            if selected_dept != "All":
-                filtered_df = filtered_df[filtered_df["Department"] == selected_dept]
-            if selected_sem != "All":
-                filtered_df = filtered_df[filtered_df["Semester"] == selected_sem]
-                
-            st.markdown(f"### Showing {len(filtered_df)} available book(s)")
-            
-            for index, row in filtered_df.iterrows():
-                with st.container():
-                    col_a, col_b, col_c = st.columns([2.5, 1.2, 1])
-                    with col_a:
-                        # Fixed: Replaced markdown asterisks with safe HTML italics to prevent stray * symbols
-                        st.markdown(f"#### {row['Title']} by <em>{row['Author']}</em>", unsafe_allow_html=True)
-                        st.caption(f"**Department:** {row['Department']} | **Semester:** {row['Semester']} | **Condition:** {row['Condition']}")
-                        st.write(f"🏷️ **Price:** ₹{row['Price (₹)']}")
-                    with col_b:
-                        st.markdown(f"**Seller:** {row['Seller Name']}")
-                        st.info(f"📱 Contact:\n`{row['Contact (WhatsApp/Email)']}`")
-                    with col_c:
-                        st.markdown("### ") 
-                        if st.button("Mark as Sold", key=f"sold_{index}"):
-                            try:
-                                full_df = load_data()
-                                full_df.at[index, "Status"] = "Sold"
-                                update_data(full_df)
-                                st.session_state.books_db = full_df
-                                st.success("Book marked as sold! Record preserved in college archive.")
-                                st.rerun()
-                            except Exception as e:
-                                st.error(f"Error updating status: {e}")
-                    st.divider()
+      col1, col2, col3 = st.columns(3)
+
+      with col1:
+        search_query = st.text_input(
+            "🔍 Search by Title, Author, or Institution", ""
+        ).lower()
+      with col2:
+        departments = ["All"] + sorted(
+            available_df["Department"].dropna().unique().tolist()
+        )
+        selected_dept = st.selectbox("Filter by Department", departments)
+      with col3:
+        semesters = ["All"] + sorted(
+            available_df["Semester"].dropna().unique().tolist()
+        )
+        selected_sem = st.selectbox("Filter by Semester", semesters)
+
+      filtered_df = available_df.copy()
+
+      if search_query:
+        filtered_df = filtered_df[
+            filtered_df["Title"].astype(str).str.lower().str.contains(
+                search_query, na=False
+            )
+            | filtered_df["Author"]
+            .astype(str)
+            .str.lower()
+            .str.contains(search_query, na=False)
+            | filtered_df["Institution"]
+            .astype(str)
+            .str.lower()
+            .str.contains(search_query, na=False)
+        ]
+      if selected_dept != "All":
+        filtered_df = filtered_df[filtered_df["Department"] == selected_dept]
+      if selected_sem != "All":
+        filtered_df = filtered_df[filtered_df["Semester"] == selected_sem]
+
+      st.markdown(f"### Showing {len(filtered_df)} available book(s)")
+
+      for index, row in filtered_df.iterrows():
+        with st.container():
+          col_a, col_b, col_c = st.columns([2.5, 1.2, 1])
+          with col_a:
+            st.markdown(
+                f"#### {row['Title']} by <em>{row['Author']}</em>",
+                unsafe_allow_html=True,
+            )
+            st.caption(
+                f"**Department:** {row['Department']} | **Semester:**"
+                f" {row['Semester']} | **Condition:** {row['Condition']}"
+            )
+            # Display District and Institution if columns exist
+            district_val = (
+                row.get("District", "") if "District" in row else ""
+            )
+            inst_val = row.get("Institution", "") if "Institution" in row else ""
+            if district_val or inst_val:
+              st.caption(
+                  f"📍 **District:** {district_val} | **Institution:**"
+                  f" {inst_val}"
+              )
+            st.write(f"🏷️ **Price:** ₹{row['Price (₹)']}")
+          with col_b:
+            st.markdown(f"**Seller:** {row['Seller Name']}")
+            st.info(f"📱 Contact:\n`{row['Contact (WhatsApp/Email)']}`")
+          with col_c:
+            st.markdown("### ")
+            if st.button("Mark as Sold", key=f"sold_{index}"):
+              try:
+                full_df = load_data()
+                full_df.at[index, "Status"] = "Sold"
+                update_data(full_df)
+                st.session_state.books_db = full_df
+                st.success(
+                    "Book marked as sold! Record preserved in college archive."
+                )
+                st.rerun()
+              except Exception as e:
+                st.error(f"Error updating status: {e}")
+          st.divider()
 
 # ==========================================
 # 2. LIST A BOOK SECTION
 # ==========================================
 elif menu == "List a Book for Sale":
-    st.header("📝 Sell Your Old Textbooks")
-    
-    with st.form("book_list_form"):
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            title = st.text_input("Book Title*")
-            author = st.text_input("Author / Publisher*")
-            department = st.selectbox("Department / Stream*", [
-                "Physics", "Mathematics", "Chemistry", "Computer Science", "Zoology", "Botany", "Food & Nutrition", "Electronics", 
-                "Bengali", "English", "History", "Geography", "Philosophy", "Physical Education", "Sanskrit", "Education", "Sociology", "Commerce / Accountancy", "General / Other"
-            ])
-            semester = st.selectbox("Target Semester*", [
-                "1st Semester", "2nd Semester", "3rd Semester", 
-                "4th Semester", "5th Semester", "6th Semester",
-                "7th Semester", "8th Semester"
-            ])
-            
-        with col2:
-            price = st.number_input("Expected Price (₹)*", min_value=0, step=10, value=100)
-            condition = st.selectbox("Book Condition*", ["Like New", "Good", "Fair / Heavily Used"])
-            seller_name = st.text_input("Your Full Name*")
-            contact = st.text_input("Your WhatsApp Number or Email*", placeholder="e.g., 9876543210 or email@domain.com")
-            
-        submitted = st.form_submit_button("Post Listing")
-        
-        if submitted:
-            if not title or not author or not seller_name or not contact:
-                st.error("Please fill in all required fields.")
-            else:
-                try:
-                    current_df = load_data()
-                    new_entry = pd.DataFrame([{
-                        "Status": "Available",
-                        "Title": title,
-                        "Author": author,
-                        "Department": department,
-                        "Semester": semester,
-                        "Price (₹)": price,
-                        "Condition": condition,
-                        "Seller Name": seller_name,
-                        "Contact (WhatsApp/Email)": contact,
-                        "Date Posted": datetime.now().strftime("%Y-%m-%d")
-                    }])
-                    
-                    updated_df = pd.concat([current_df, new_entry], ignore_index=True)
-                    update_data(updated_df)
-                    st.session_state.books_db = updated_df
-                    
-                    st.success("🎉 Success! Your book has been listed.")
-                    st.balloons()
-                except Exception as e:
-                    st.error(f"Failed to save listing: {e}")
+  st.header("📝 Sell Your Old Textbooks")
+
+  # 28 Districts of West Bengal
+  wb_districts = [
+      "Alipurduar",
+      "Arambagh",
+      "Bankura",
+      "Basirhat",
+      "Birbhum",
+      "Cooch Behar",
+      "Dakshin Dinajpur",
+      "Darjeeling",
+      "Hooghly",
+      "Howrah",
+      "Jalpaiguri",
+      "Jangipur",
+      "Jhargram",
+      "Kalimpong",
+      "Kolkata",
+      "Malda",
+      "Murshidabad",
+      "Nadia",
+      "North 24 Parganas",
+      "Paschim Bardhaman",
+      "Paschim Medinipur",
+      "Purba Bardhaman",
+      "Purba Medinipur",
+      "Purulia",
+      "South 24 Parganas",
+      "Sundarban",
+      "Uttar Dinajpur",
+  ]
+
+  with st.form("book_list_form"):
+    col1, col2 = st.columns(2)
+
+    with col1:
+      title = st.text_input("Book Title*")
+      author = st.text_input("Author / Publisher*")
+      department = st.selectbox(
+          "Department / Stream*",
+          [
+              "Physics",
+              "Mathematics",
+              "Chemistry",
+              "Computer Science",
+              "Zoology",
+              "Botany",
+              "Food & Nutrition",
+              "Electronics",
+              "Bengali",
+              "English",
+              "History",
+              "Geography",
+              "Philosophy",
+              "Physical Education",
+              "Sanskrit",
+              "Education",
+              "Sociology",
+              "Commerce / Accountancy",
+              "General / Other",
+          ],
+      )
+      semester = st.selectbox(
+          "Target Semester*",
+          [
+              "1st Semester",
+              "2nd Semester",
+              "3rd Semester",
+              "4th Semester",
+              "5th Semester",
+              "6th Semester",
+              "7th Semester",
+              "8th Semester",
+          ],
+      )
+      # New District Field inside Form
+      district = st.selectbox("Select District*", options=wb_districts)
+
+    with col2:
+      price = st.number_input(
+          "Expected Price (₹)*", min_value=0, step=10, value=100
+      )
+      condition = st.selectbox(
+          "Book Condition*", ["Like New", "Good", "Fair / Heavily Used"]
+      )
+      seller_name = st.text_input("Your Full Name*")
+      contact = st.text_input(
+          "Your WhatsApp Number or Email*",
+          placeholder="e.g., 9876543210 or email@domain.com",
+      )
+      # New Institution / Other Field inside Form
+      institution = st.text_input(
+          "Institution / Other*",
+          placeholder="e.g., Prabhu Jagatbandhu College",
+      )
+
+    submitted = st.form_submit_button("Post Listing")
+
+    if submitted:
+      if not title or not author or not seller_name or not contact or not institution:
+        st.error("Please fill in all required fields.")
+      else:
+        try:
+          current_df = load_data()
+          new_entry = pd.DataFrame([
+              {
+                  "Status": "Available",
+                  "Title": title,
+                  "Author": author,
+                  "Department": department,
+                  "Semester": semester,
+                  "District": district,  # Added District
+                  "Institution": institution,  # Added Institution
+                  "Price (₹)": price,
+                  "Condition": condition,
+                  "Seller Name": seller_name,
+                  "Contact (WhatsApp/Email)": contact,
+                  "Date Posted": datetime.now().strftime("%Y-%m-%d"),
+              }
+          ])
+
+          updated_df = pd.concat([current_df, new_entry], ignore_index=True)
+          update_data(updated_df)
+          st.session_state.books_db = updated_df
+
+          st.success("🎉 Success! Your book has been listed.")
+          st.balloons()
+        except Exception as e:
+          st.error(f"Failed to save listing: {e}")
 
 # ==========================================
 # 3. ABOUT SECTION
 # ==========================================
 else:
-    st.header("ℹ️ About PJC Textbook Exchange")
-    st.write("The Campus Textbook Exchange Programme helps PJC students save money by reusing books sustainably.")
+  st.header("ℹ️ About PJC Textbook Exchange")
+  st.write(
+      "The Campus Textbook Exchange Programme helps PJC students save money by"
+      " reusing books sustainably."
+  )
 
 # --- Footer ---
 st.markdown("---")
-st.markdown("<p style='text-align: center; color: gray;'>Prabhu Jagatbandhu College • Student Welfare Initiative</p>", unsafe_allow_html=True)
-
+st.markdown(
+    "<p style='text-align: center; color: gray;'>Prabhu Jagatbandhu College •"
+    " Student Welfare Initiative</p>",
+    unsafe_allow_html=True,
+)

@@ -138,7 +138,7 @@ with col_title:
     unsafe_allow_html=True,
 )
     st.markdown(
-    '<p style="color: #1f77b4; font-size: 16px; margin-top: -15px;">Andul-Mouri, Howrah, Pin- 711302</p>',
+    '<p style="color: #0D47A1; font-size: 16px; margin-top: -15px;">Andul-Mouri, Howrah, Pin- 711302</p>',
     unsafe_allow_html=True,
 )
     

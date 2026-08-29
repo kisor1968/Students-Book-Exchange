@@ -139,7 +139,7 @@ with col_title:
     st.subheader("Campus Textbook Exchange Programme")
 
 st.markdown(
-    "Welcome to the official peer-to-peer textbook marketplace for PJC students. "
+    "Welcome to the official peer-to-peer textbook marketplace for students. "
     "Pass down your old books to juniors at affordable prices and buy what you need directly from your seniors!"
 )
 st.markdown(

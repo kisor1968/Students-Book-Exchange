@@ -28,7 +28,7 @@ def set_background(image_file):
 
 
 # Call the function with your image filename
-set_background("background.jpg")
+set_background("background.png")
 st.markdown(
     """
     <style>

@@ -3,6 +3,24 @@ import pandas as pd
 from datetime import datetime
 import gspread
 from google.oauth2.service_account import Credentials
+
+st.markdown(
+    """
+    <style>
+    [data-testid="stAppViewContainer"] {
+        background-image: url("background.jpg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+    [data-testid="stHeader"] {
+        background-color: rgba(0,0,0,0) !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 st.markdown(
     """
     <style>

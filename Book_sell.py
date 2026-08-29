@@ -128,8 +128,13 @@ with col_title:
     '<p style="color: #2E7D32; font-style: italic; margin-bottom: 2px;">Maintained by:</p>',
     unsafe_allow_html=True,
 )
+    #st.markdown(
+    #'<h1 style="color: #1f77b4; margin-top: 0px;">"### Prabhu Jagatbandhu College"</h1>',
+    #unsafe_allow_html=True,
+#)
     st.markdown(
-    '<h1 style="color: #1f77b4; margin-top: 0px;">"### Prabhu Jagatbandhu College"</h1>',
+    '<div style="color: #1f77b4; font-size: 24px; font-weight: bold; margin-top:'
+    ' 0px;">Prabhu Jagatbandhu College</div>',
     unsafe_allow_html=True,
 )
     st.markdown(

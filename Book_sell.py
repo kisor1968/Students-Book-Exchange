@@ -573,7 +573,7 @@ if menu == "Browse Available Books":
                     "Your Full Name", value=row["Seller Name"]
                 )
                 new_contact = st.text_input(
-                    "Your WhatsApp Number or Email",
+                    "Your WhatsApp Number or Email or both separated by a comma",
                     value=row["Contact (WhatsApp/Email)"],
                 )
                 new_inst = st.text_input(

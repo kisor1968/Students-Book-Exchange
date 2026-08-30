@@ -50,8 +50,22 @@ SCOPES = [
 
 
 def contains_profanity(text):
-  # Add words you want to block (case-insensitive check)
-  banned_words = ["spamword1", "spamword2", "vulgarword"]
+  # Expanded robust keyword blocking list for inappropriate filtering
+  banned_words = [
+      "sex",
+      "porn",
+      "xxx",
+      "adult",
+      "nude",
+      "erotic",
+      "gangbang",
+      "rape",
+      "slut",
+      "whore",
+      "fuck",
+      "shit",
+      "bitch",
+  ]
   text_lower = text.lower()
   for word in banned_words:
     if word in text_lower:

@@ -254,30 +254,16 @@ if menu == "Browse Available Books":
             
             contact_info = str(row['Contact (WhatsApp/Email)']).strip()
             
-            # 1. Email Button (if contact looks like an email)
-            if "@" in contact_info:
-                # Format a pre-filled email link
-                subject = f"Inquiry about your textbook: {row['Title']}"
-                body = f"Hi {row['Seller Name']}, I saw your listing for '{row['Title']}' on the PJC Textbook Exchange and I am interested in buying it."
-                # Replace spaces for the URL
-                subject = subject.replace(" ", "%20")
-                body = body.replace(" ", "%20")
-                st.link_button("✉️ Email Seller", f"mailto:{contact_info}?subject={subject}&body={body}", use_container_width=True)
-            
-            # 2. WhatsApp & Phone Buttons (if contact has at least 10 digits)
-            import re
-            clean_num = re.sub(r'\D', '', contact_info) # Extract only numbers
-            
-            if len(clean_num) >= 10:
-                # Format for Indian numbers if it's just 10 digits
-                wa_num = "91" + clean_num if len(clean_num) == 10 else clean_num
-                wa_text = f"Hi {row['Seller Name']}, I saw your listing for '{row['Title']}' on the PJC Textbook Exchange. Is it still available?"
-                wa_text = wa_text.replace(" ", "%20")
-                
-                st.link_button("💬 WhatsApp Seller", f"https://wa.me/{wa_num}?text={wa_text}", use_container_width=True)
-                st.link_button("📞 Call Seller", f"tel:{clean_num}", use_container_width=True)
+            # Use an expander or text box for foolproof contact viewing & copying
+            with st.expander("📱 Get Contact Info"):
+                st.write(f"**Seller:** {row['Seller Name']}")
+                st.code(contact_info, language=None)
+                if "@" in contact_info:
+                    st.caption("Copy email address above to contact.")
+                else:
+                    st.caption("Copy phone number for WhatsApp/Call.")
 
-            # Keep the "Mark as Sold" button for the seller/admin
+            # Keep the "Mark as Sold" button
             if st.button("Mark as Sold", key=f"sold_{index}", use_container_width=True):
               try:
                 full_df = load_data()

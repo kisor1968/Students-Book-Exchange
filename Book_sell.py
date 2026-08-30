@@ -365,7 +365,7 @@ elif menu == "List a Book for Sale":
       )
 
     submitted = st.form_submit_button("Post Listing")
-      st.caption("⚠️ Note: All listings are monitored. Uploading abusive, plagiarized, or inappropriate material will result in a permanent ban and reporting to college authorities.")
+    st.caption("⚠️ Note: All listings are monitored. Uploading abusive, plagiarized, or inappropriate material will result in a permanent ban and reporting to college authorities.")
 
     if submitted:
         if submitted:

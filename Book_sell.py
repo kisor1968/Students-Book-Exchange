@@ -211,41 +211,4 @@ def append_review_data(new_row_df):
   spreadsheet_url = "https://docs.google.com/spreadsheets/d/1nOYLY09PtuhZYuAEKED8Y5jSKTz1e4Bulh4mWtEsJbY/edit?gid=0#gid=0"
   sheet = client.open_by_url(spreadsheet_url).worksheet("Reviews")
   existing_data = load_reviews_data()
-  combined_df = pd.concat([existing_data, new_row_df], ignore_index=True)
-  sheet.update(
-      [combined_df.columns.values.tolist()] + combined_df.values.tolist(), "A1"
-  )
-
-
-if "books_db" not in st.session_state:
-  try:
-    st.session_state.books_db = load_data()
-  except Exception as e:
-    st.session_state.books_db = pd.DataFrame()
-    st.error(f"Error loading initial data: {e}")
-
-# --- Header Section with Logo ---
-col_logo, col_title = st.columns([1, 5])
-
-with col_logo:
-  try:
-    st.image("logo_pjc.png", width=110)
-  except Exception:
-    st.warning(
-        "Logo file not found. Please save 'logo_pjc.png' in the app directory."
-    )
-
-with col_title:
-  title_color1 = "#145A32"
-  st.markdown(
-      f"<h1 style='color: {title_color1}; margin-bottom: 0px;'>Textbook"
-      " Exchange Platform</h1>",
-      unsafe_allow_html=True,
-  )
-  st.markdown(
-      '<p style="color: #8C6D36; font-style: italic; margin-bottom:'
-      ' 2px;">Maintained by:</p>',
-      unsafe_allow_html=True,
-  )
-  st.markdown(
-      '<div style="color: #8C6D36; font-size: 32px; font-weight
+  combined_df = pd.concat([existing_data, new_row_df], ignore

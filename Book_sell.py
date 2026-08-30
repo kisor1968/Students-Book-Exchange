@@ -254,21 +254,32 @@ if menu == "Browse Available Books":
             
             contact_info = str(row['Contact (WhatsApp/Email)']).strip()
             
-            # Use an expander button for quick interaction
-            with st.expander("💬 Quick Connect"):
-                if "@" in contact_info:
-                    st.write("**Send Email:**")
-                    email_draft = f"To: {contact_info}\nSubject: Inquiry about {row['Title']}\n\nHi {row['Seller Name']}, I am interested in your textbook listed on PJC Textbook Exchange."
-                    st.code(email_draft, language=None)
-                else:
-                    import re
-                    clean_num = re.sub(r'\D', '', contact_info)
-                    wa_num = "91" + clean_num if len(clean_num) == 10 else clean_num
-                    wa_draft = f"Hi {row['Seller Name']}, I am interested in your textbook '{row['Title']}' listed on PJC Textbook Exchange. Is it available?"
+            # Check if contact is an Email or Phone Number
+            if "@" in contact_info:
+                # Fallback display for email since QR codes are for phone/links
+                st.info(f"✉️ **Email Listing**\n\n`{contact_info}`")
+            else:
+                import re
+                clean_num = re.sub(r'\D', '', contact_info)
+                
+                if len(clean_num) >= 10:
+                    import qrcode
+                    from io import BytesIO
                     
-                    st.write(f"**WhatsApp Number:** `{contact_info}`")
-                    st.write("**Ready-to-send Message:**")
-                    st.code(wa_draft, language=None)
+                    wa_num = "91" + clean_num if len(clean_num) == 10 else clean_num
+                    wa_text = f"Hi {row['Seller Name']}, I am interested in your textbook '{row['Title']}' listed on PJC Textbook Exchange."
+                    wa_url = f"https://wa.me/{wa_num}?text={wa_text.replace(' ', '%20')}"
+                    
+                    if st.button("📱 Scan WhatsApp QR", key=f"qr_btn_{index}", use_container_width=True):
+                        st.session_state[f"show_qr_{index}"] = not st.session_state.get(f"show_qr_{index}", False)
+                    
+                    if st.session_state.get(f"show_qr_{index}", False):
+                        img = qrcode.make(wa_url)
+                        buf = BytesIO()
+                        img.save(buf, format="PNG")
+                        st.image(buf.getvalue(), width=140, caption="Scan with phone camera")
+                else:
+                    st.warning("⚠️ Contact number appears invalid.")
 
             # Keep the "Mark as Sold" button
             if st.button("Mark as Sold", key=f"sold_{index}", use_container_width=True):

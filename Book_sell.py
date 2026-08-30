@@ -650,6 +650,13 @@ elif menu == "List a Book for Sale":
       department = st.selectbox("Department / Stream*", departments_list)
       semester = st.selectbox("Target Semester*", semesters_list)
       district = st.selectbox("Select District*", options=wb_districts)
+      # Moved PIN here to fill the empty space on the left:
+      seller_pin = st.text_input(
+          "Set a 4-digit PIN to close/edit this listing*",
+          type="password",
+          max_chars=4,
+          placeholder="e.g. 1234",
+      )
 
     with col2:
       price = st.number_input(
@@ -667,12 +674,7 @@ elif menu == "List a Book for Sale":
           "Institution / Other*",
           placeholder="e.g., Prabhu Jagatbandhu College",
       )
-      seller_pin = st.text_input(
-          "Set a 4-digit PIN to close/edit this listing*",
-          type="password",
-          max_chars=4,
-          placeholder="e.g. 1234",
-      )
+      # Secret recovery word stays or can be aligned side-by-side:
       secret_word = st.text_input(
           "Set a Secret Recovery Word (for password reset)*",
           type="password",

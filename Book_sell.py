@@ -254,7 +254,6 @@ if menu == "Browse Available Books":
             st.markdown("### ")
             contact_info = str(row["Contact (WhatsApp/Email)"]).strip()
 
-            # If email is provided, do nothing extra here (just proceed to Mark as Sold button)
             if "@" in contact_info:
               pass
             else:
@@ -287,19 +286,38 @@ if menu == "Browse Available Books":
                   img.save(buf, format="PNG")
                   st.image(buf.getvalue(), width=130, caption="Scan with phone")
 
-            # Mark as Sold button placed right after contact / QR section
+            # Secure PIN-Protected "Mark as Sold" Process
             if st.button(
                 "Mark as Sold", key=f"sold_{index}", use_container_width=True
             ):
-              try:
-                full_df = load_data()
-                full_df.at[index, "Status"] = "Sold"
-                update_data(full_df)
-                st.session_state.books_db = full_df
-                st.success("Book marked as sold!")
-                st.rerun()
-              except Exception as e:
-                st.error(f"Error updating status: {e}")
+              st.session_state[f"show_pin_box_{index}"] = not st.session_state.get(
+                  f"show_pin_box_{index}", False
+              )
+
+            if st.session_state.get(f"show_pin_box_{index}", False):
+              entered_pin = st.text_input(
+                  "Enter Seller PIN:",
+                  type="password",
+                  max_chars=4,
+                  key=f"pin_input_{index}",
+              )
+              if st.button("Confirm Sold", key=f"confirm_sold_{index}"):
+                saved_pin = str(row.get("PIN", "")).strip()
+                if (
+                    saved_pin
+                    and str(entered_pin).strip() == saved_pin
+                ):
+                  try:
+                    full_df = load_data()
+                    full_df.at[index, "Status"] = "Sold"
+                    update_data(full_df)
+                    st.session_state.books_db = full_df
+                    st.success("Book successfully marked as sold!")
+                    st.rerun()
+                  except Exception as e:
+                    st.error(f"Error updating status: {e}")
+                else:
+                  st.error("Incorrect PIN! Action denied.")
 
           st.divider()
 
@@ -414,15 +432,13 @@ elif menu == "List a Book for Sale":
           "Institution / Other*",
           placeholder="e.g., Prabhu Jagatbandhu College",
       )
-     # -------------------------------------------------------------
-      # INSERT THE PIN FIELD RIGHT HERE:
-      # -------------------------------------------------------------
       seller_pin = st.text_input(
           "Set a 4-digit PIN to close this listing*",
           type="password",
           max_chars=4,
           placeholder="e.g. 1234",
       )
+
     submitted = st.form_submit_button("Post Listing")
     st.caption(
         "⚠️ Note: All listings are monitored. Uploading abusive, plagiarized,"
@@ -431,8 +447,15 @@ elif menu == "List a Book for Sale":
     )
 
     if submitted:
-      if not title or not author or not seller_name or not contact or not institution:
-        st.error("Please fill in all required fields.")
+      if (
+          not title
+          or not author
+          or not seller_name
+          or not contact
+          or not institution
+          or not seller_pin
+      ):
+        st.error("Please fill in all required fields, including the PIN.")
       elif contains_profanity(title) or contains_profanity(author):
         st.error(
             "⚠️ Your submission contains prohibited or inappropriate language."
@@ -454,7 +477,7 @@ elif menu == "List a Book for Sale":
                   "Condition": condition,
                   "Seller Name": seller_name,
                   "Contact (WhatsApp/Email)": contact,
-                  "PIN": seller_pin,
+                  "PIN": str(seller_pin).strip(),
                   "Date Posted": datetime.now().strftime("%Y-%m-%d"),
               }
           ])
@@ -463,7 +486,9 @@ elif menu == "List a Book for Sale":
           update_data(updated_df)
           st.session_state.books_db = updated_df
 
-          st.success("🎉 Success! Your book has been listed.")
+          st.success(
+              "🎉 Success! Your book has been listed securely with your PIN."
+          )
           st.balloons()
         except Exception as e:
           st.error(f"Failed to save listing: {e}")

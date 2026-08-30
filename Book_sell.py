@@ -906,6 +906,23 @@ elif menu == "FAQ Chatbot":
     bot_response = ""
 
     if any(
+        kw in query_lower
+        for kw in [
+            "purpose",
+            "what is",
+            "about",
+            "app do",
+            "platform",
+            "exchange",
+        ]
+    ):
+      bot_response = (
+          "The **PJC Textbook Exchange Platform** is a student welfare"
+          " initiative maintained by Prabhu Jagatbandhu College. It helps"
+          " students pass down their old textbooks to juniors at affordable"
+          " prices or buy what they need directly from seniors sustainably!"
+      )
+    elif any(
         kw in query_lower for kw in ["list", "sell", "upload", "add book"]
     ):
       bot_response = (
@@ -951,8 +968,9 @@ elif menu == "FAQ Chatbot":
     else:
       bot_response = (
           "I'm not quite sure about that specific query. You can ask me"
-          " questions about **listing books**, **recovering your PIN**, **using"
-          " WhatsApp QR codes**, or **marking books as sold**!"
+          " questions about **what this app is**, **listing books**,"
+          " **recovering your PIN**, **using WhatsApp QR codes**, or **marking"
+          " books as sold**!"
       )
 
     st.session_state.chatbot_messages.append(

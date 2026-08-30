@@ -914,6 +914,8 @@ elif menu == "FAQ Chatbot":
             "app do",
             "platform",
             "exchange",
+            "use it",
+            "how can i use",
         ]
     ):
       bot_response = (
@@ -921,6 +923,24 @@ elif menu == "FAQ Chatbot":
           " initiative maintained by Prabhu Jagatbandhu College. It helps"
           " students pass down their old textbooks to juniors at affordable"
           " prices or buy what they need directly from seniors sustainably!"
+      )
+    elif any(
+        kw in query_lower
+        for kw in [
+            "buy",
+            "purchase",
+            "get a book",
+            "find",
+            "browse",
+            "search",
+        ]
+    ):
+      bot_response = (
+          "To buy a book, go to **'Browse available books'** from the sidebar."
+          " You can filter listings by department, semester, or search by"
+          " title/author. Once you find a book you like, click the **'📱"
+          " WhatsApp QR'** button to instantly scan and chat with the seller"
+          " on WhatsApp!"
       )
     elif any(
         kw in query_lower for kw in ["list", "sell", "upload", "add book"]
@@ -958,6 +978,16 @@ elif menu == "FAQ Chatbot":
           " books'**, click **'Mark as Sold'** on your listing, and enter your"
           " 4-digit seller PIN to securely update its status."
       )
+    elif any(
+        kw in query_lower
+        for kw in ["department", "departments", "streams", "subjects", "how many"]
+    ):
+      bot_response = (
+          f"There are **{len(departments_list)} departments** listed on the"
+          " platform, covering Science, Arts, Commerce, and professional"
+          " courses like BBA and Law. You can view them all when listing or"
+          " filtering books!"
+      )
     elif any(kw in query_lower for kw in ["college", "prabhu", "pjc", "where"]):
       bot_response = (
           "This platform is maintained by **Prabhu Jagatbandhu College**"
@@ -968,9 +998,9 @@ elif menu == "FAQ Chatbot":
     else:
       bot_response = (
           "I'm not quite sure about that specific query. You can ask me"
-          " questions about **what this app is**, **listing books**,"
-          " **recovering your PIN**, **using WhatsApp QR codes**, or **marking"
-          " books as sold**!"
+          " questions about **buying books**, **listing books**,"
+          " **departments**, **recovering your PIN**, or **WhatsApp QR"
+          " codes**!"
       )
 
     st.session_state.chatbot_messages.append(

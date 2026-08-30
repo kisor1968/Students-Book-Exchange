@@ -269,21 +269,22 @@ st.markdown(
 )
 st.divider()
 
-# --- Sidebar Navigation ---
-menu = st.sidebar.selectbox(
-    "Navigation",
+# --- Sidebar Sequential Radio Navigation ---
+st.sidebar.header("Navigation")
+menu = st.sidebar.radio(
+    "Go to",
     [
-        "Browse Available Books",
-        "List a Book for Sale",
-        "App Reviews & Suggestions",
         "About the Programme",
+        "Browse available books",
+        "List a book for sale",
+        "App reviews and suggestions",
     ],
 )
 
 # ==========================================
 # 1. BROWSE, EDIT & MARK AS SOLD SECTION
 # ==========================================
-if menu == "Browse Available Books":
+if menu == "Browse available books":
   st.header("📖 Browse Available Textbooks")
 
   try:
@@ -673,7 +674,7 @@ if menu == "Browse Available Books":
 # ==========================================
 # 2. LIST A BOOK SECTION
 # ==========================================
-elif menu == "List a Book for Sale":
+elif menu == "List a book for sale":
   st.header("📝 Sell Your Old Textbooks")
 
   with st.form("book_list_form"):
@@ -785,7 +786,7 @@ elif menu == "List a Book for Sale":
 # ==========================================
 # 3. REVIEWS & FEEDBACK SECTION
 # ==========================================
-elif menu == "App Reviews & Suggestions":
+elif menu == "App reviews and suggestions":
   st.header("💬 App Reviews & Modification Suggestions")
   st.write(
       "We'd love to hear your thoughts! Let us know how your experience has"
@@ -849,7 +850,6 @@ elif menu == "App Reviews & Suggestions":
     if reviews_df.empty:
       st.info("No reviews yet. Be the first to share your feedback!")
     else:
-      # Display recent reviews first
       for idx, r_row in reviews_df.iloc[::-1].iterrows():
         with st.container():
           st.markdown(

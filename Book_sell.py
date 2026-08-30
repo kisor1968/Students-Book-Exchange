@@ -290,10 +290,13 @@ if menu == "Browse Available Books":
             if st.button(
                 "✏️ Edit Listing", key=f"edit_btn_{index}", use_container_width=True
             ):
-              st.session_state[f"show_edit_box_{index}"] = not st.session_state.get(
+              current_edit_state = st.session_state.get(
                   f"show_edit_box_{index}", False
               )
+              st.session_state[f"show_edit_box_{index}"] = not current_edit_state
               st.session_state[f"show_pin_box_{index}"] = False
+              st.session_state[f"authorized_edit_{index}"] = False
+              st.rerun()
 
             if st.session_state.get(f"show_edit_box_{index}", False):
               edit_pin = st.text_input(
@@ -306,6 +309,7 @@ if menu == "Browse Available Books":
                 saved_pin = str(row.get("PIN", "")).strip()
                 if saved_pin and str(edit_pin).strip() == saved_pin:
                   st.session_state[f"authorized_edit_{index}"] = True
+                  st.rerun()
                 else:
                   st.error("Incorrect PIN!")
 
@@ -353,10 +357,13 @@ if menu == "Browse Available Books":
             if st.button(
                 "Mark as Sold", key=f"sold_{index}", use_container_width=True
             ):
-              st.session_state[f"show_pin_box_{index}"] = not st.session_state.get(
+              current_sold_state = st.session_state.get(
                   f"show_pin_box_{index}", False
               )
+              st.session_state[f"show_pin_box_{index}"] = not current_sold_state
               st.session_state[f"show_edit_box_{index}"] = False
+              st.session_state[f"authorized_edit_{index}"] = False
+              st.rerun()
 
             if st.session_state.get(f"show_pin_box_{index}", False):
               entered_pin = st.text_input(
@@ -373,6 +380,7 @@ if menu == "Browse Available Books":
                     full_df.at[index, "Status"] = "Sold"
                     update_data(full_df)
                     st.session_state.books_db = full_df
+                    st.session_state[f"show_pin_box_{index}"] = False
                     st.success("Book successfully marked as sold!")
                     st.rerun()
                   except Exception as e:

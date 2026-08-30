@@ -477,8 +477,10 @@ elif menu == "List a Book for Sale":
                   "Condition": condition,
                   "Seller Name": seller_name,
                   "Contact (WhatsApp/Email)": contact,
-                  "PIN": str(seller_pin).strip(),
-                  "Date Posted": datetime.now().strftime("%Y-%m-%d"),
+                  "Date Posted": datetime.now().strftime(
+                      "%Y-%m-%d"
+                  ),  # Matches Column L
+                  "PIN": str(seller_pin).strip(),  # Matches Column M
               }
           ])
 

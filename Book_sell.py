@@ -254,16 +254,9 @@ if menu == "Browse Available Books":
             st.markdown("### ")
             contact_info = str(row["Contact (WhatsApp/Email)"]).strip()
 
+            # If email is provided, do nothing extra here (just proceed to Mark as Sold button)
             if "@" in contact_info:
-              st.markdown(
-                  f"""
-                            <div style="background-color: rgba(220, 225, 235, 0.65); padding: 12px; border-radius: 10px; border: 1px solid rgba(200, 205, 215, 0.8); text-align: center; margin-bottom: 8px;">
-                                <p style="margin: 0 0 4px 0; font-size: 13px; color: #145A32; font-weight: bold;">📱 Contact:</p>
-                                <p style="margin: 0; font-size: 12px; color: #333; font-family: monospace; word-break: break-all;">{contact_info}</p>
-                            </div>
-                            """,
-                  unsafe_allow_html=True,
-              )
+              pass
             else:
               clean_num = re.sub(r"\D", "", contact_info)
               if len(clean_num) >= 10:
@@ -293,9 +286,8 @@ if menu == "Browse Available Books":
                   buf = BytesIO()
                   img.save(buf, format="PNG")
                   st.image(buf.getvalue(), width=130, caption="Scan with phone")
-              else:
-                st.caption(f"📞 Contact: {contact_info}")
 
+            # Mark as Sold button placed right after contact / QR section
             if st.button(
                 "Mark as Sold", key=f"sold_{index}", use_container_width=True
             ):

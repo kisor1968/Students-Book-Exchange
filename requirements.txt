@@ -1,4 +1,5 @@
 streamlit
-gspread
-oauth2client
 pandas
+gspread
+google-auth
+qrcode[pil]

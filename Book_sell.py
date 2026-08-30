@@ -254,39 +254,21 @@ if menu == "Browse Available Books":
             
             contact_info = str(row['Contact (WhatsApp/Email)']).strip()
             
-            # Use an interactive button that triggers an in-app action container
-            if st.button("🚀 Connect with Seller", key=f"connect_{index}", use_container_width=True):
-                st.session_state[f"show_contact_{index}"] = not st.session_state.get(f"show_contact_{index}", False)
-            
-            # Show the secure connection actions right below if toggled
-            if st.session_state.get(f"show_contact_{index}", False):
-                st.markdown(f"""
-                <div style="background-color: #f9f9f9; padding: 10px; border-radius: 5px; border: 1px solid #ddd; margin-bottom: 8px;">
-                    <p style="margin: 0; font-size: 14px; color: #333;"><b>Direct Contact Options:</b></p>
-                </div>
-                """, unsafe_allow_html=True)
-                
+            # Use an expander button for quick interaction
+            with st.expander("💬 Quick Connect"):
                 if "@" in contact_info:
-                    # Safe HTML wrapper forcing proper frame handling
-                    st.markdown(f"""
-                    <a href="mailto:{contact_info}?subject=Inquiry%20about%20{row['Title']}" 
-                       style="display: block; text-align: center; background-color: #145A32; color: white; padding: 6px 10px; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: bold; margin-bottom: 5px;">
-                       ✉️ Open Email App
-                    </a>
-                    """, unsafe_allow_html=True)
+                    st.write("**Send Email:**")
+                    email_draft = f"To: {contact_info}\nSubject: Inquiry about {row['Title']}\n\nHi {row['Seller Name']}, I am interested in your textbook listed on PJC Textbook Exchange."
+                    st.code(email_draft, language=None)
                 else:
                     import re
                     clean_num = re.sub(r'\D', '', contact_info)
-                    if len(clean_num) >= 10:
-                        wa_num = "91" + clean_num if len(clean_num) == 10 else clean_num
-                        wa_text = f"Hi {row['Seller Name']}, I am interested in your textbook '{row['Title']}' listed on PJC Textbook Exchange. Is it available?"
-                        
-                        st.markdown(f"""
-                        <a href="https://api.whatsapp.com/send?phone={wa_num}&text={wa_text.replace(' ', '%20')}" target="_self"
-                           style="display: block; text-align: center; background-color: #25D366; color: white; padding: 6px 10px; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: bold; margin-bottom: 5px;">
-                           💬 Open WhatsApp Chat
-                        </a>
-                        """, unsafe_allow_html=True)
+                    wa_num = "91" + clean_num if len(clean_num) == 10 else clean_num
+                    wa_draft = f"Hi {row['Seller Name']}, I am interested in your textbook '{row['Title']}' listed on PJC Textbook Exchange. Is it available?"
+                    
+                    st.write(f"**WhatsApp Number:** `{contact_info}`")
+                    st.write("**Ready-to-send Message:**")
+                    st.code(wa_draft, language=None)
 
             # Keep the "Mark as Sold" button
             if st.button("Mark as Sold", key=f"sold_{index}", use_container_width=True):

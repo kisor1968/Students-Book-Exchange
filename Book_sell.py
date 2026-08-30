@@ -1,8 +1,11 @@
 import base64
 from datetime import datetime
+from io import BytesIO
+import re
 import gspread
 from google.oauth2.service_account import Credentials
 import pandas as pd
+import qrcode
 import streamlit as st
 
 # --- Page Configuration ---
@@ -39,7 +42,6 @@ def set_background(image_file):
     pass
 
 
-# Call the function with your image filename (change to background.jpg if needed)
 set_background("background.png")
 
 # --- Direct Google Sheets Connection Setup ---
@@ -50,7 +52,6 @@ SCOPES = [
 
 
 def contains_profanity(text):
-  # Expanded robust keyword blocking list for inappropriate filtering
   banned_words = [
       "sex",
       "porn",
@@ -139,7 +140,6 @@ with col_title:
       " Howrah, Pin- 711302</p>",
       unsafe_allow_html=True,
   )
-
   st.subheader("Campus Textbook Exchange Programme")
 
 st.markdown(
@@ -235,7 +235,6 @@ if menu == "Browse Available Books":
                 f"**Department:** {row['Department']} | **Semester:**"
                 f" {row['Semester']} | **Condition:** {row['Condition']}"
             )
-            # Display District and Institution if columns exist
             district_val = (
                 row.get("District", "") if "District" in row else ""
             )
@@ -246,49 +245,55 @@ if menu == "Browse Available Books":
                   f" {inst_val}"
               )
             st.write(f"🏷️ **Price:** ₹{row['Price (₹)']}")
+
           with col_b:
             st.markdown(f"**Seller:** {row['Seller Name']}")
             st.info(f"📱 Contact:\n`{row['Contact (WhatsApp/Email)']}`")
-         with col_c:
-            st.markdown("### ")
-            
-            contact_info = str(row['Contact (WhatsApp/Email)']).strip()
-            
-            # Unified Action Container for both WhatsApp and Email
-            if "@" in contact_info:
-                # Sleek Email Action Box
-                st.markdown(f"""
-                <div style="background-color: #f4f6f5; padding: 10px; border-radius: 6px; border: 1px solid #d1d8d3; text-align: center; margin-bottom: 8px;">
-                    <p style="margin: 0 0 5px 0; font-size: 12px; color: #145A32; font-weight: bold;">PREFERRED CONTACT</p>
-                    <p style="margin: 0; font-size: 13px; color: #333;">✉️ <b>Email Seller</b></p>
-                    <p style="margin: 5px 0 0 0; font-size: 11px; color: #666; word-break: break-all;">{contact_info}</p>
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                import re
-                clean_num = re.sub(r'\D', '', contact_info)
-                
-                if len(clean_num) >= 10:
-                    import qrcode
-                    from io import BytesIO
-                    
-                    wa_num = "91" + clean_num if len(clean_num) == 10 else clean_num
-                    wa_text = f"Hi {row['Seller Name']}, I am interested in your textbook '{row['Title']}' listed on PJC Textbook Exchange."
-                    wa_url = f"https://wa.me/{wa_num}?text={wa_text.replace(' ', '%20')}"
-                    
-                    if st.button("📱 WhatsApp QR", key=f"qr_btn_{index}", use_container_width=True):
-                        st.session_state[f"show_qr_{index}"] = not st.session_state.get(f"show_qr_{index}", False)
-                    
-                    if st.session_state.get(f"show_qr_{index}", False):
-                        img = qrcode.make(wa_url)
-                        buf = BytesIO()
-                        img.save(buf, format="PNG")
-                        st.image(buf.getvalue(), width=130, caption="Scan to Chat")
-                else:
-                    st.caption(f"📞 Contact: {contact_info}")
 
-            # Keep the "Mark as Sold" button consistent across all cards
-            if st.button("Mark as Sold", key=f"sold_{index}", use_container_width=True):
+          with col_c:
+            st.markdown("### ")
+            contact_info = str(row["Contact (WhatsApp/Email)"]).strip()
+
+            if "@" in contact_info:
+              st.markdown(
+                  f"""
+                            <div style="background-color: #f4f6f5; padding: 10px; border-radius: 6px; border: 1px solid #d1d8d3; text-align: center; margin-bottom: 8px;">
+                                <p style="margin: 0 0 5px 0; font-size: 12px; color: #145A32; font-weight: bold;">PREFERRED CONTACT</p>
+                                <p style="margin: 0; font-size: 13px; color: #333;">✉️ <b>Email Seller</b></p>
+                                <p style="margin: 5px 0 0 0; font-size: 11px; color: #666; word-break: break-all;">{contact_info}</p>
+                            </div>
+                            """,
+                  unsafe_allow_html=True,
+              )
+            else:
+              clean_num = re.sub(r"\D", "", contact_info)
+              if len(clean_num) >= 10:
+                wa_num = "91" + clean_num if len(clean_num) == 10 else clean_num
+                wa_text = f"Hi {row['Seller Name']}, I am interested in your textbook '{row['Title']}' listed on PJC Textbook Exchange."
+                wa_url = (
+                    f"https://wa.me/{wa_num}?text={wa_text.replace(' ', '%20')}"
+                )
+
+                if st.button(
+                    "📱 WhatsApp QR", key=f"qr_btn_{index}", use_container_width=True
+                ):
+                  st.session_state[f"show_qr_{index}"] = not st.session_state.get(
+                      f"show_qr_{index}", False
+                  )
+
+                if st.session_state.get(f"show_qr_{index}", False):
+                  img = qrcode.make(wa_url)
+                  buf = BytesIO()
+                  img.save(buf, format="PNG")
+                  st.image(
+                      buf.getvalue(), width=130, caption="Scan to Chat"
+                  )
+              else:
+                st.caption(f"📞 Contact: {contact_info}")
+
+            if st.button(
+                "Mark as Sold", key=f"sold_{index}", use_container_width=True
+            ):
               try:
                 full_df = load_data()
                 full_df.at[index, "Status"] = "Sold"
@@ -298,6 +303,7 @@ if menu == "Browse Available Books":
                 st.rerun()
               except Exception as e:
                 st.error(f"Error updating status: {e}")
+
           st.divider()
 
 # ==========================================
@@ -306,7 +312,6 @@ if menu == "Browse Available Books":
 elif menu == "List a Book for Sale":
   st.header("📝 Sell Your Old Textbooks")
 
-  # 28 Districts of West Bengal
   wb_districts = [
       "Alipurduar",
       "Arambagh",
@@ -394,7 +399,6 @@ elif menu == "List a Book for Sale":
               "8th Semester",
           ],
       )
-      # New District Field inside Form
       district = st.selectbox("Select District*", options=wb_districts)
 
     with col2:
@@ -409,7 +413,6 @@ elif menu == "List a Book for Sale":
           "Your WhatsApp Number or Email*",
           placeholder="e.g., 9876543210 or email@domain.com",
       )
-      # New Institution / Other Field inside Form
       institution = st.text_input(
           "Institution / Other*",
           placeholder="e.g., Prabhu Jagatbandhu College",
@@ -440,8 +443,8 @@ elif menu == "List a Book for Sale":
                   "Author": author,
                   "Department": department,
                   "Semester": semester,
-                  "District": district,  # Added District
-                  "Institution": institution,  # Added Institution
+                  "District": district,
+                  "Institution": institution,
                   "Price (₹)": price,
                   "Condition": condition,
                   "Seller Name": seller_name,

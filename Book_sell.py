@@ -324,6 +324,17 @@ if menu == "Browse Available Books":
               )
             st.write(f"🏷️ **Price:** ₹{row['Price (₹)']}")
 
+            # Display book image if available
+            img_data = row.get("Book Image", "")
+            if pd.notna(img_data) and str(img_data).strip():
+              try:
+                image_bytes = base64.b64decode(str(img_data))
+                st.image(
+                    image_bytes, width=150, caption="Book Condition Image"
+                )
+              except Exception:
+                pass
+
           with col_b:
             st.markdown(f"**Seller:** {row['Seller Name']}")
             st.info(f"📱 Contact:\n`{row['Contact (WhatsApp/Email)']}`")
@@ -567,6 +578,12 @@ if menu == "Browse Available Books":
                     type="password",
                 )
 
+              # Optional image upload field for editing
+              new_book_image = st.file_uploader(
+                  "Upload New Book Condition Image (Optional)",
+                  type=["png", "jpg", "jpeg"],
+              )
+
               update_submitted = st.form_submit_button(
                   "💾 Save All Changes", use_container_width=True
               )
@@ -583,6 +600,13 @@ if menu == "Browse Available Books":
                   full_df.at[index, "Condition"] = new_cond
                   full_df.at[index, "Seller Name"] = new_seller_name
                   full_df.at[index, "Contact (WhatsApp/Email)"] = new_contact
+
+                  if new_book_image is not None:
+                    encoded_img = base64.b64encode(
+                        new_book_image.getvalue()
+                    ).decode("utf-8")
+                    full_df.at[index, "Book Image"] = encoded_img
+
                   if new_pin.strip():
                     full_df.at[index, "PIN"] = str(new_pin).strip()
                   if new_secret.strip():
@@ -645,6 +669,11 @@ elif menu == "List a Book for Sale":
           placeholder="e.g., your pet's name or secret phrase",
       )
 
+    # Optional image upload field for new listing
+    book_image = st.file_uploader(
+        "Upload Book Condition Image (Optional)", type=["png", "jpg", "jpeg"]
+    )
+
     submitted = st.form_submit_button("Post Listing")
     st.caption(
         "⚠️ Note: All listings are monitored. Uploading abusive, plagiarized,"
@@ -673,6 +702,12 @@ elif menu == "List a Book for Sale":
         )
       else:
         try:
+          image_base64 = ""
+          if book_image is not None:
+            image_base64 = base64.b64encode(book_image.getvalue()).decode(
+                "utf-8"
+            )
+
           current_df = load_data()
           new_entry = pd.DataFrame([
               {
@@ -690,6 +725,7 @@ elif menu == "List a Book for Sale":
                   "Date Posted": datetime.now().strftime("%Y-%m-%d"),
                   "PIN": str(seller_pin).strip(),
                   "Secret Word": str(secret_word).strip().lower(),
+                  "Book Image": image_base64,
               }
           ])
 

@@ -167,7 +167,11 @@ def load_data():
   spreadsheet_url = "https://docs.google.com/spreadsheets/d/1nOYLY09PtuhZYuAEKED8Y5jSKTz1e4Bulh4mWtEsJbY/edit?gid=0#gid=0"
   sheet = client.open_by_url(spreadsheet_url).worksheet("Sheet1")
   data = sheet.get_all_records()
-  return pd.DataFrame(data)
+  df = pd.DataFrame(data)
+  # Ensure Price column is cleanly parsed as numeric to prevent dtype errors
+  if "Price (₹)" in df.columns:
+    df["Price (₹)"] = pd.to_numeric(df["Price (₹)"], errors="coerce").fillna(0).astype(int)
+  return df
 
 
 def update_data(df):
@@ -438,6 +442,7 @@ if menu == "Browse Available Books":
                   try:
                     full_df = load_data()
                     full_df.at[index, "Status"] = "Sold"
+                    full_df["Price (₹)"] = pd.to_numeric(full_df["Price (₹)"], errors="coerce").fillna(0).astype(int)
                     update_data(full_df)
                     st.session_state.books_db = full_df
                     st.session_state[f"show_pin_box_{index}"] = False
@@ -476,6 +481,7 @@ if menu == "Browse Available Books":
                   try:
                     full_df = load_data()
                     full_df.at[index, "PIN"] = new_random_pin
+                    full_df["Price (₹)"] = pd.to_numeric(full_df["Price (₹)"], errors="coerce").fillna(0).astype(int)
                     update_data(full_df)
                     st.session_state.books_db = full_df
                     st.success(
@@ -616,6 +622,9 @@ if menu == "Browse Available Books":
                         str(new_secret).strip().lower()
                     )
 
+                  # Force convert price column back to integer to satisfy dtype
+                  full_df["Price (₹)"] = pd.to_numeric(full_df["Price (₹)"], errors="coerce").fillna(0).astype(int)
+
                   update_data(full_df)
                   st.session_state.books_db = full_df
                   st.success("Listing fully updated successfully!")
@@ -720,7 +729,7 @@ elif menu == "List a Book for Sale":
                   "Semester": semester,
                   "District": district,
                   "Institution": institution,
-                  "Price (₹)": price,
+                  "Price (₹)": int(price),
                   "Condition": condition,
                   "Seller Name": seller_name,
                   "Contact (WhatsApp/Email)": contact,
@@ -732,6 +741,8 @@ elif menu == "List a Book for Sale":
           ])
 
           updated_df = pd.concat([current_df, new_entry], ignore_index=True)
+          updated_df["Price (₹)"] = pd.to_numeric(updated_df["Price (₹)"], errors="coerce").fillna(0).astype(int)
+          
           update_data(updated_df)
           st.session_state.books_db = updated_df
 

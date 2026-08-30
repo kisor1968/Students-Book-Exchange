@@ -174,9 +174,9 @@ def load_data():
         pd.to_numeric(df["Price (₹)"], errors="coerce").fillna(0).astype(int)
     )
   if "PIN" in df.columns:
-    df["PIN"] = df["PIN"].astype(str)
+    df["PIN"] = df["PIN"].astype(str).fillna("")
   if "Secret Word" in df.columns:
-    df["Secret Word"] = df["Secret Word"].astype(str)
+    df["Secret Word"] = df["Secret Word"].astype(str).fillna("")
   return df
 
 
@@ -184,6 +184,8 @@ def update_data(df):
   client = get_gspread_client()
   spreadsheet_url = "https://docs.google.com/spreadsheets/d/1nOYLY09PtuhZYuAEKED8Y5jSKTz1e4Bulh4mWtEsJbY/edit?gid=0#gid=0"
   sheet = client.open_by_url(spreadsheet_url).worksheet("Sheet1")
+  # Clean NaN values to prevent JSON compliance errors
+  df = df.fillna("")
   sheet.update([df.columns.values.tolist()] + df.values.tolist(), "A1")
 
 
@@ -211,7 +213,9 @@ def append_review_data(new_row_df):
   spreadsheet_url = "https://docs.google.com/spreadsheets/d/1nOYLY09PtuhZYuAEKED8Y5jSKTz1e4Bulh4mWtEsJbY/edit?gid=0#gid=0"
   sheet = client.open_by_url(spreadsheet_url).worksheet("Reviews")
   existing_data = load_reviews_data()
-  combined_df = pd.concat([existing_data, new_row_df], ignore_index=True)
+  combined_df = pd.concat([existing_data, new_row_df], ignore_index=True).fillna(
+      ""
+  )
   sheet.update(
       [combined_df.columns.values.tolist()] + combined_df.values.tolist(), "A1"
   )
@@ -506,8 +510,10 @@ if menu == "Browse available books":
                         .fillna(0)
                         .astype(int)
                     )
-                    full_df["PIN"] = full_df["PIN"].astype(str)
-                    full_df["Secret Word"] = full_df["Secret Word"].astype(str)
+                    full_df["PIN"] = full_df["PIN"].astype(str).fillna("")
+                    full_df["Secret Word"] = (
+                        full_df["Secret Word"].astype(str).fillna("")
+                    )
                     update_data(full_df)
                     st.session_state.books_db = full_df
                     st.session_state[f"show_pin_box_{index}"] = False
@@ -550,8 +556,10 @@ if menu == "Browse available books":
                         .fillna(0)
                         .astype(int)
                     )
-                    full_df["PIN"] = full_df["PIN"].astype(str)
-                    full_df["Secret Word"] = full_df["Secret Word"].astype(str)
+                    full_df["PIN"] = full_df["PIN"].astype(str).fillna("")
+                    full_df["Secret Word"] = (
+                        full_df["Secret Word"].astype(str).fillna("")
+                    )
                     update_data(full_df)
                     st.session_state.books_db = full_df
                     st.success(
@@ -683,8 +691,10 @@ if menu == "Browse available books":
                       .fillna(0)
                       .astype(int)
                   )
-                  full_df["PIN"] = full_df["PIN"].astype(str)
-                  full_df["Secret Word"] = full_df["Secret Word"].astype(str)
+                  full_df["PIN"] = full_df["PIN"].astype(str).fillna("")
+                  full_df["Secret Word"] = (
+                      full_df["Secret Word"].astype(str).fillna("")
+                  )
 
                   update_data(full_df)
                   st.session_state.books_db = full_df
@@ -797,8 +807,10 @@ elif menu == "List a book for sale":
               .fillna(0)
               .astype(int)
           )
-          updated_df["PIN"] = updated_df["PIN"].astype(str)
-          updated_df["Secret Word"] = updated_df["Secret Word"].astype(str)
+          updated_df["PIN"] = updated_df["PIN"].astype(str).fillna("")
+          updated_df["Secret Word"] = (
+              updated_df["Secret Word"].astype(str).fillna("")
+          )
 
           update_data(updated_df)
           st.session_state.books_db = updated_df

@@ -286,13 +286,14 @@ elif menu == "List a Book for Sale":
       author = st.text_input("Author / Publisher*")
       department = st.selectbox(
           "Department / Stream*",
-          [
+           sorted([
               "Physics",
               "Mathematics",
               "Chemistry",
               "Computer Science",
               "Zoology",
               "Botany",
+              "Anthropology",
               "Food & Nutrition",
               "Electronics",
               "Bengali",
@@ -307,7 +308,7 @@ elif menu == "List a Book for Sale":
               "Psychology",
               "Commerce / Accountancy",
               "General / Other",
-          ],
+          ]),
       )
       semester = st.selectbox(
           "Target Semester*",

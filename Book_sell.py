@@ -401,124 +401,6 @@ if menu == "Browse Available Books":
                 )
                 st.rerun()
 
-            if st.session_state.get(f"authorized_edit_{index}", False):
-              with st.form(key=f"update_form_{index}"):
-                st.markdown("### Update Listing Details")
-                edit_col1, edit_col2 = st.columns(2)
-
-                with edit_col1:
-                  new_title = st.text_input("Book Title", value=row["Title"])
-                  new_author = st.text_input(
-                      "Author / Publisher", value=row["Author"]
-                  )
-
-                  curr_dept = (
-                      row["Department"]
-                      if row["Department"] in departments_list
-                      else departments_list[0]
-                  )
-                  new_dept = st.selectbox(
-                      "Department / Stream",
-                      departments_list,
-                      index=departments_list.index(curr_dept),
-                  )
-
-                  curr_sem = (
-                      row["Semester"]
-                      if row["Semester"] in semesters_list
-                      else semesters_list[0]
-                  )
-                  new_sem = st.selectbox(
-                      "Target Semester",
-                      semesters_list,
-                      index=semesters_list.index(curr_sem),
-                  )
-
-                  curr_dist = (
-                      row["District"]
-                      if "District" in row and row["District"] in wb_districts
-                      else wb_districts[0]
-                  )
-                  new_dist = st.selectbox(
-                      "District",
-                      wb_districts,
-                      index=wb_districts.index(curr_dist),
-                  )
-
-                with edit_col2:
-                  new_price = st.number_input(
-                      "Expected Price (₹)",
-                      min_value=0,
-                      value=int(row["Price (₹)"])
-                      if pd.notna(row["Price (₹)"])
-                      else 100,
-                  )
-
-                  cond_options = ["Like New", "Good", "Fair / Heavily Used"]
-                  curr_cond = (
-                      row["Condition"]
-                      if row["Condition"] in cond_options
-                      else cond_options[0]
-                  )
-                  new_cond = st.selectbox(
-                      "Book Condition",
-                      cond_options,
-                      index=cond_options.index(curr_cond),
-                  )
-
-                  new_seller_name = st.text_input(
-                      "Your Full Name", value=row["Seller Name"]
-                  )
-                  new_contact = st.text_input(
-                      "Your WhatsApp Number or Email",
-                      value=row["Contact (WhatsApp/Email)"],
-                  )
-                  new_inst = st.text_input(
-                      "Institution / Other",
-                      value=row.get("Institution", ""),
-                  )
-                  new_pin = st.text_input(
-                      "Update 4-digit PIN",
-                      value=str(row.get("PIN", "")),
-                      type="password",
-                      max_chars=4,
-                  )
-                  new_secret = st.text_input(
-                      "Update Secret Recovery Word",
-                      value=str(row.get("Secret Word", "")),
-                      type="password",
-                  )
-
-                update_submitted = st.form_submit_button("Save All Changes")
-                if update_submitted:
-                  try:
-                    full_df = load_data()
-                    full_df.at[index, "Title"] = new_title
-                    full_df.at[index, "Author"] = new_author
-                    full_df.at[index, "Department"] = new_dept
-                    full_df.at[index, "Semester"] = new_sem
-                    full_df.at[index, "District"] = new_dist
-                    full_df.at[index, "Institution"] = new_inst
-                    full_df.at[index, "Price (₹)"] = new_price
-                    full_df.at[index, "Condition"] = new_cond
-                    full_df.at[index, "Seller Name"] = new_seller_name
-                    full_df.at[index, "Contact (WhatsApp/Email)"] = new_contact
-                    if new_pin.strip():
-                      full_df.at[index, "PIN"] = str(new_pin).strip()
-                    if new_secret.strip():
-                      full_df.at[index, "Secret Word"] = (
-                          str(new_secret).strip().lower()
-                      )
-
-                    update_data(full_df)
-                    st.session_state.books_db = full_df
-                    st.success("Listing fully updated successfully!")
-                    st.session_state[f"authorized_edit_{index}"] = False
-                    st.session_state[f"show_edit_box_{index}"] = False
-                    st.rerun()
-                  except Exception as e:
-                    st.error(f"Error updating listing: {e}")
-
             # --- MARK AS SOLD BUTTON & LOGIC ---
             if st.button(
                 "🏷️ Mark as Sold", key=f"sold_{index}", use_container_width=True
@@ -594,6 +476,128 @@ if menu == "Browse Available Books":
                     st.error(f"Error resetting PIN: {e}")
                 else:
                   st.error("❌ Incorrect Secret Recovery Word! Access denied.")
+
+          # --- FULL-WIDTH EDIT FORM (UTILIZING THE ENTIRE SPACE BELOW THE LISTING) ---
+          if st.session_state.get(f"authorized_edit_{index}", False):
+            st.markdown("---")
+            with st.form(key=f"update_form_{index}"):
+              st.markdown("### 📝 Edit Listing Details")
+              form_col1, form_col2 = st.columns(2)
+
+              with form_col1:
+                new_title = st.text_input("Book Title", value=row["Title"])
+                new_author = st.text_input(
+                    "Author / Publisher", value=row["Author"]
+                )
+
+                curr_dept = (
+                    row["Department"]
+                    if row["Department"] in departments_list
+                    else departments_list[0]
+                )
+                new_dept = st.selectbox(
+                    "Department / Stream",
+                    departments_list,
+                    index=departments_list.index(curr_dept),
+                )
+
+                curr_sem = (
+                    row["Semester"]
+                    if row["Semester"] in semesters_list
+                    else semesters_list[0]
+                )
+                new_sem = st.selectbox(
+                    "Target Semester",
+                    semesters_list,
+                    index=semesters_list.index(curr_sem),
+                )
+
+                curr_dist = (
+                    row["District"]
+                    if "District" in row and row["District"] in wb_districts
+                    else wb_districts[0]
+                )
+                new_dist = st.selectbox(
+                    "District",
+                    wb_districts,
+                    index=wb_districts.index(curr_dist),
+                )
+
+              with form_col2:
+                new_price = st.number_input(
+                    "Expected Price (₹)",
+                    min_value=0,
+                    value=int(row["Price (₹)"])
+                    if pd.notna(row["Price (₹)"])
+                    else 100,
+                )
+
+                cond_options = ["Like New", "Good", "Fair / Heavily Used"]
+                curr_cond = (
+                    row["Condition"]
+                    if row["Condition"] in cond_options
+                    else cond_options[0]
+                )
+                new_cond = st.selectbox(
+                    "Book Condition",
+                    cond_options,
+                    index=cond_options.index(curr_cond),
+                )
+
+                new_seller_name = st.text_input(
+                    "Your Full Name", value=row["Seller Name"]
+                )
+                new_contact = st.text_input(
+                    "Your WhatsApp Number or Email",
+                    value=row["Contact (WhatsApp/Email)"],
+                )
+                new_inst = st.text_input(
+                    "Institution / Other",
+                    value=row.get("Institution", ""),
+                )
+                new_pin = st.text_input(
+                    "Update 4-digit PIN",
+                    value=str(row.get("PIN", "")),
+                    type="password",
+                    max_chars=4,
+                )
+                new_secret = st.text_input(
+                    "Update Secret Recovery Word",
+                    value=str(row.get("Secret Word", "")),
+                    type="password",
+                )
+
+              update_submitted = st.form_submit_button(
+                  "💾 Save All Changes", use_container_width=True
+              )
+              if update_submitted:
+                try:
+                  full_df = load_data()
+                  full_df.at[index, "Title"] = new_title
+                  full_df.at[index, "Author"] = new_author
+                  full_df.at[index, "Department"] = new_dept
+                  full_df.at[index, "Semester"] = new_sem
+                  full_df.at[index, "District"] = new_dist
+                  full_df.at[index, "Institution"] = new_inst
+                  full_df.at[index, "Price (₹)"] = new_price
+                  full_df.at[index, "Condition"] = new_cond
+                  full_df.at[index, "Seller Name"] = new_seller_name
+                  full_df.at[index, "Contact (WhatsApp/Email)"] = new_contact
+                  if new_pin.strip():
+                    full_df.at[index, "PIN"] = str(new_pin).strip()
+                  if new_secret.strip():
+                    full_df.at[index, "Secret Word"] = (
+                        str(new_secret).strip().lower()
+                    )
+
+                  update_data(full_df)
+                  st.session_state.books_db = full_df
+                  st.success("Listing fully updated successfully!")
+                  st.session_state[f"authorized_edit_{index}"] = False
+                  st.session_state[f"show_edit_box_{index}"] = False
+                  st.rerun()
+                except Exception as e:
+                  st.error(f"Error updating listing: {e}")
 
           st.divider()
 

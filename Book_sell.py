@@ -315,6 +315,15 @@ if menu == "Browse Available Books":
                 else:
                   st.error("Incorrect PIN!")
 
+              # --- FORGOT PIN FOR EDIT ---
+              if st.button("🔄 Forgot PIN?", key=f"forgot_edit_btn_{index}"):
+                st.session_state[f"show_forgot_box_{index}"] = (
+                    not st.session_state.get(
+                        f"show_forgot_box_{index}", False
+                    )
+                )
+                st.rerun()
+
             if st.session_state.get(f"authorized_edit_{index}", False):
               with st.form(key=f"update_form_{index}"):
                 st.markdown("**Update Details:**")
@@ -391,8 +400,8 @@ if menu == "Browse Available Books":
                 else:
                   st.error("Incorrect PIN! Action denied.")
 
-              # --- SECURE FORGOT PIN OPTION (USING HIDDEN RECOVERY WORD) ---
-              if st.button("🔄 Forgot PIN?", key=f"forgot_btn_{index}"):
+              # --- FORGOT PIN FOR SOLD ---
+              if st.button("🔄 Forgot PIN?", key=f"forgot_sold_btn_{index}"):
                 st.session_state[f"show_forgot_box_{index}"] = (
                     not st.session_state.get(
                         f"show_forgot_box_{index}", False
@@ -400,38 +409,36 @@ if menu == "Browse Available Books":
                 )
                 st.rerun()
 
-              if st.session_state.get(f"show_forgot_box_{index}", False):
-                secret_input = st.text_input(
-                    "Enter your Secret Recovery Word:",
-                    type="password",
-                    key=f"secret_input_{index}",
-                    placeholder="Set when you listed the book",
-                )
-                if st.button("Regenerate New PIN", key=f"do_reset_{index}"):
-                  actual_secret = str(
-                      row.get("Secret Word", "")
-                  ).strip().lower()
-                  if (
-                      secret_input.strip()
-                      and secret_input.strip().lower() == actual_secret
-                  ):
-                    new_random_pin = f"{random.randint(1000, 9999)}"
-                    try:
-                      full_df = load_data()
-                      full_df.at[index, "PIN"] = new_random_pin
-                      update_data(full_df)
-                      st.session_state.books_db = full_df
-                      st.success(
-                          f"✅ Verified! Your new 4-digit PIN is:"
-                          f" **{new_random_pin}**. Please save it securely!"
-                      )
-                      st.session_state[f"show_forgot_box_{index}"] = False
-                    except Exception as e:
-                      st.error(f"Error resetting PIN: {e}")
-                  else:
-                    st.error(
-                        "❌ Incorrect Secret Recovery Word! Access denied."
+            # --- SHARED SECRET RECOVERY BOX (WORKS FOR BOTH) ---
+            if st.session_state.get(f"show_forgot_box_{index}", False):
+              st.markdown("---")
+              secret_input = st.text_input(
+                  "Enter your Secret Recovery Word:",
+                  type="password",
+                  key=f"secret_input_{index}",
+                  placeholder="Set when you listed the book",
+              )
+              if st.button("Regenerate New PIN", key=f"do_reset_{index}"):
+                actual_secret = str(row.get("Secret Word", "")).strip().lower()
+                if (
+                    secret_input.strip()
+                    and secret_input.strip().lower() == actual_secret
+                ):
+                  new_random_pin = f"{random.randint(1000, 9999)}"
+                  try:
+                    full_df = load_data()
+                    full_df.at[index, "PIN"] = new_random_pin
+                    update_data(full_df)
+                    st.session_state.books_db = full_df
+                    st.success(
+                        f"✅ Verified! Your new 4-digit PIN is:"
+                        f" **{new_random_pin}**. Please save it securely!"
                     )
+                    st.session_state[f"show_forgot_box_{index}"] = False
+                  except Exception as e:
+                    st.error(f"Error resetting PIN: {e}")
+                else:
+                  st.error("❌ Incorrect Secret Recovery Word! Access denied.")
 
           st.divider()
 

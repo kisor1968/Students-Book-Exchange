@@ -1,6 +1,7 @@
 import base64
 from datetime import datetime
 from io import BytesIO
+import random
 import re
 import gspread
 from google.oauth2.service_account import Credentials
@@ -295,6 +296,7 @@ if menu == "Browse Available Books":
               )
               st.session_state[f"show_edit_box_{index}"] = not current_edit_state
               st.session_state[f"show_pin_box_{index}"] = False
+              st.session_state[f"show_forgot_box_{index}"] = False
               st.session_state[f"authorized_edit_{index}"] = False
               st.rerun()
 
@@ -362,6 +364,7 @@ if menu == "Browse Available Books":
               )
               st.session_state[f"show_pin_box_{index}"] = not current_sold_state
               st.session_state[f"show_edit_box_{index}"] = False
+              st.session_state[f"show_forgot_box_{index}"] = False
               st.session_state[f"authorized_edit_{index}"] = False
               st.rerun()
 
@@ -387,6 +390,48 @@ if menu == "Browse Available Books":
                     st.error(f"Error updating status: {e}")
                 else:
                   st.error("Incorrect PIN! Action denied.")
+
+              # --- SECURE FORGOT PIN OPTION (USING HIDDEN RECOVERY WORD) ---
+              if st.button("🔄 Forgot PIN?", key=f"forgot_btn_{index}"):
+                st.session_state[f"show_forgot_box_{index}"] = (
+                    not st.session_state.get(
+                        f"show_forgot_box_{index}", False
+                    )
+                )
+                st.rerun()
+
+              if st.session_state.get(f"show_forgot_box_{index}", False):
+                secret_input = st.text_input(
+                    "Enter your Secret Recovery Word:",
+                    type="password",
+                    key=f"secret_input_{index}",
+                    placeholder="Set when you listed the book",
+                )
+                if st.button("Regenerate New PIN", key=f"do_reset_{index}"):
+                  actual_secret = str(
+                      row.get("Secret Word", "")
+                  ).strip().lower()
+                  if (
+                      secret_input.strip()
+                      and secret_input.strip().lower() == actual_secret
+                  ):
+                    new_random_pin = f"{random.randint(1000, 9999)}"
+                    try:
+                      full_df = load_data()
+                      full_df.at[index, "PIN"] = new_random_pin
+                      update_data(full_df)
+                      st.session_state.books_db = full_df
+                      st.success(
+                          f"✅ Verified! Your new 4-digit PIN is:"
+                          f" **{new_random_pin}**. Please save it securely!"
+                      )
+                      st.session_state[f"show_forgot_box_{index}"] = False
+                    except Exception as e:
+                      st.error(f"Error resetting PIN: {e}")
+                  else:
+                    st.error(
+                        "❌ Incorrect Secret Recovery Word! Access denied."
+                    )
 
           st.divider()
 
@@ -507,6 +552,11 @@ elif menu == "List a Book for Sale":
           max_chars=4,
           placeholder="e.g. 1234",
       )
+      secret_word = st.text_input(
+          "Set a Secret Recovery Word (for password reset)*",
+          type="password",
+          placeholder="e.g., your pet's name or secret phrase",
+      )
 
     submitted = st.form_submit_button("Post Listing")
     st.caption(
@@ -523,8 +573,12 @@ elif menu == "List a Book for Sale":
           or not contact
           or not institution
           or not seller_pin
+          or not secret_word
       ):
-        st.error("Please fill in all required fields, including the PIN.")
+        st.error(
+            "Please fill in all required fields, including the PIN and Secret"
+            " Recovery Word."
+        )
       elif contains_profanity(title) or contains_profanity(author):
         st.error(
             "⚠️ Your submission contains prohibited or inappropriate language."
@@ -546,10 +600,9 @@ elif menu == "List a Book for Sale":
                   "Condition": condition,
                   "Seller Name": seller_name,
                   "Contact (WhatsApp/Email)": contact,
-                  "Date Posted": datetime.now().strftime(
-                      "%Y-%m-%d"
-                  ),  # Matches Column L
-                  "PIN": str(seller_pin).strip(),  # Matches Column M
+                  "Date Posted": datetime.now().strftime("%Y-%m-%d"),
+                  "PIN": str(seller_pin).strip(),
+                  "Secret Word": str(secret_word).strip().lower(),
               }
           ])
 
@@ -558,7 +611,8 @@ elif menu == "List a Book for Sale":
           st.session_state.books_db = updated_df
 
           st.success(
-              "🎉 Success! Your book has been listed securely with your PIN."
+              "🎉 Success! Your book has been listed securely with your PIN and"
+              " Secret Recovery Word."
           )
           st.balloons()
         except Exception as e:

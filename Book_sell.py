@@ -186,6 +186,36 @@ def update_data(df):
   sheet.update([df.columns.values.tolist()] + df.values.tolist(), "A1")
 
 
+def load_reviews_data():
+  try:
+    client = get_gspread_client()
+    spreadsheet_url = "https://docs.google.com/spreadsheets/d/1nOYLY09PtuhZYuAEKED8Y5jSKTz1e4Bulh4mWtEsJbY/edit?gid=0#gid=0"
+    sheet = client.open_by_url(spreadsheet_url).worksheet("Reviews")
+    data = sheet.get_all_records()
+    return pd.DataFrame(data)
+  except Exception:
+    return pd.DataFrame(
+        columns=[
+            "Timestamp",
+            "Name",
+            "Department",
+            "Rating",
+            "Review / Suggestion",
+        ]
+    )
+
+
+def append_review_data(new_row_df):
+  client = get_gspread_client()
+  spreadsheet_url = "https://docs.google.com/spreadsheets/d/1nOYLY09PtuhZYuAEKED8Y5jSKTz1e4Bulh4mWtEsJbY/edit?gid=0#gid=0"
+  sheet = client.open_by_url(spreadsheet_url).worksheet("Reviews")
+  existing_data = load_reviews_data()
+  combined_df = pd.concat([existing_data, new_row_df], ignore_index=True)
+  sheet.update(
+      [combined_df.columns.values.tolist()] + combined_df.values.tolist(), "A1"
+  )
+
+
 if "books_db" not in st.session_state:
   try:
     st.session_state.books_db = load_data()
@@ -242,7 +272,12 @@ st.divider()
 # --- Sidebar Navigation ---
 menu = st.sidebar.selectbox(
     "Navigation",
-    ["Browse Available Books", "List a Book for Sale", "About the Programme"],
+    [
+        "Browse Available Books",
+        "List a Book for Sale",
+        "App Reviews & Suggestions",
+        "About the Programme",
+    ],
 )
 
 # ==========================================
@@ -573,7 +608,7 @@ if menu == "Browse Available Books":
                     "Your Full Name", value=row["Seller Name"]
                 )
                 new_contact = st.text_input(
-                    "Your WhatsApp Number or Email or both separated by a comma",
+                    "Your WhatsApp Number or Email",
                     value=row["Contact (WhatsApp/Email)"],
                 )
                 new_inst = st.text_input(
@@ -650,7 +685,6 @@ elif menu == "List a Book for Sale":
       department = st.selectbox("Department / Stream*", departments_list)
       semester = st.selectbox("Target Semester*", semesters_list)
       district = st.selectbox("Select District*", options=wb_districts)
-      # Moved PIN here to fill the empty space on the left:
       seller_pin = st.text_input(
           "Set a 4-digit PIN to close/edit this listing*",
           type="password",
@@ -674,7 +708,6 @@ elif menu == "List a Book for Sale":
           "Institution / Other*",
           placeholder="e.g., Prabhu Jagatbandhu College",
       )
-      # Secret recovery word stays or can be aligned side-by-side:
       secret_word = st.text_input(
           "Set a Secret Recovery Word (for password reset)*",
           type="password",
@@ -750,7 +783,86 @@ elif menu == "List a Book for Sale":
           st.error(f"Failed to save listing: {e}")
 
 # ==========================================
-# 3. ABOUT SECTION
+# 3. REVIEWS & FEEDBACK SECTION
+# ==========================================
+elif menu == "App Reviews & Suggestions":
+  st.header("💬 App Reviews & Modification Suggestions")
+  st.write(
+      "We'd love to hear your thoughts! Let us know how your experience has"
+      " been or suggest new features you'd like to see added to this platform."
+  )
+
+  col_form, col_list = st.columns([1, 1.2], gap="large")
+
+  with col_form:
+    st.subheader("📝 Leave Your Feedback")
+    with st.form("review_form"):
+      rev_name = st.text_input("Your Name / Student ID*")
+      rev_dept = st.selectbox("Your Department*", departments_list)
+      rev_rating = st.selectbox(
+          "Rating*",
+          [
+              "⭐⭐⭐⭐⭐ (5/5 - Excellent)",
+              "⭐⭐⭐⭐ (4/5 - Very Good)",
+              "⭐⭐⭐ (3/5 - Average)",
+              "⭐⭐ (2/5 - Needs Improvement)",
+              "⭐ (1/5 - Poor)",
+          ],
+      )
+      rev_text = st.text_area(
+          "Your Review or Suggested Modifications*",
+          placeholder="Share what works well or what features should be added...",
+      )
+
+      review_submitted = st.form_submit_button("Submit Review")
+
+      if review_submitted:
+        if not rev_name.strip() or not rev_text.strip():
+          st.error("Please fill in your name and review details.")
+        elif contains_profanity(rev_text):
+          st.error(
+              "⚠️ Your feedback contains prohibited language. Please revise it."
+          )
+        else:
+          try:
+            new_review_df = pd.DataFrame([
+                {
+                    "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                    "Name": rev_name.strip(),
+                    "Department": rev_dept,
+                    "Rating": rev_rating,
+                    "Review / Suggestion": rev_text.strip(),
+                }
+            ])
+            append_review_data(new_review_df)
+            st.success(
+                "🎉 Thank you! Your review and suggestions have been recorded."
+            )
+            st.balloons()
+          except Exception as e:
+            st.error(f"Failed to submit review: {e}")
+
+  with col_list:
+    st.subheader("⭐ Community Feedback & Suggestions")
+    reviews_df = load_reviews_data()
+
+    if reviews_df.empty:
+      st.info("No reviews yet. Be the first to share your feedback!")
+    else:
+      # Display recent reviews first
+      for idx, r_row in reviews_df.iloc[::-1].iterrows():
+        with st.container():
+          st.markdown(
+              f"**{r_row.get('Name', 'Anonymous')}** "
+              f"({r_row.get('Department', 'General')}) —"
+              f" *{r_row.get('Timestamp', '')}*"
+          )
+          st.markdown(f"**Rating:** {r_row.get('Rating', '')}")
+          st.write(f"💭 {r_row.get('Review / Suggestion', '')}")
+          st.divider()
+
+# ==========================================
+# 4. ABOUT SECTION
 # ==========================================
 else:
   st.header("ℹ️ About PJC Textbook Exchange")

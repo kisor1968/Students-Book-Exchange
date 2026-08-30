@@ -249,15 +249,21 @@ if menu == "Browse Available Books":
           with col_b:
             st.markdown(f"**Seller:** {row['Seller Name']}")
             st.info(f"📱 Contact:\n`{row['Contact (WhatsApp/Email)']}`")
-          with col_c:
+         with col_c:
             st.markdown("### ")
             
             contact_info = str(row['Contact (WhatsApp/Email)']).strip()
             
-            # Check if contact is an Email or Phone Number
+            # Unified Action Container for both WhatsApp and Email
             if "@" in contact_info:
-                # Fallback display for email since QR codes are for phone/links
-                st.info(f"✉️ **Email Listing**\n\n`{contact_info}`")
+                # Sleek Email Action Box
+                st.markdown(f"""
+                <div style="background-color: #f4f6f5; padding: 10px; border-radius: 6px; border: 1px solid #d1d8d3; text-align: center; margin-bottom: 8px;">
+                    <p style="margin: 0 0 5px 0; font-size: 12px; color: #145A32; font-weight: bold;">PREFERRED CONTACT</p>
+                    <p style="margin: 0; font-size: 13px; color: #333;">✉️ <b>Email Seller</b></p>
+                    <p style="margin: 5px 0 0 0; font-size: 11px; color: #666; word-break: break-all;">{contact_info}</p>
+                </div>
+                """, unsafe_allow_html=True)
             else:
                 import re
                 clean_num = re.sub(r'\D', '', contact_info)
@@ -270,18 +276,18 @@ if menu == "Browse Available Books":
                     wa_text = f"Hi {row['Seller Name']}, I am interested in your textbook '{row['Title']}' listed on PJC Textbook Exchange."
                     wa_url = f"https://wa.me/{wa_num}?text={wa_text.replace(' ', '%20')}"
                     
-                    if st.button("📱 Scan WhatsApp QR", key=f"qr_btn_{index}", use_container_width=True):
+                    if st.button("📱 WhatsApp QR", key=f"qr_btn_{index}", use_container_width=True):
                         st.session_state[f"show_qr_{index}"] = not st.session_state.get(f"show_qr_{index}", False)
                     
                     if st.session_state.get(f"show_qr_{index}", False):
                         img = qrcode.make(wa_url)
                         buf = BytesIO()
                         img.save(buf, format="PNG")
-                        st.image(buf.getvalue(), width=140, caption="Scan with phone camera")
+                        st.image(buf.getvalue(), width=130, caption="Scan to Chat")
                 else:
-                    st.warning("⚠️ Contact number appears invalid.")
+                    st.caption(f"📞 Contact: {contact_info}")
 
-            # Keep the "Mark as Sold" button
+            # Keep the "Mark as Sold" button consistent across all cards
             if st.button("Mark as Sold", key=f"sold_{index}", use_container_width=True):
               try:
                 full_df = load_data()

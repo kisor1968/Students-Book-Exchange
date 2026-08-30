@@ -124,10 +124,8 @@ st.markdown(
     " need directly from your seniors!"
 )
 st.markdown(
-    '<p style="color: #666666; font-size: 13px; text-align: center; margin-top:'
-    " 30px;'>© Dr. Kisor Mukhopadhyay, Prabhu Jagatbandhu College. All rights"
-    " reserved.</p>",
-    unsafe_allow_html=True,
+    """<p style="color: #666666; font-size: 13px; text-align: center; margin-top: 30px;">© Dr. Kisor Mukhopadhyay, Prabhu Jagatbandhu College. All rights reserved.</p>""",
+    unsafe_allow_html=True
 )
 st.divider()
 

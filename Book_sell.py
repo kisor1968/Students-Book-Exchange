@@ -935,7 +935,6 @@ elif menu == "FAQ Chatbot":
         # Check if user asked for a specific department or keyword
         matched_books = available_books.copy()
         if len(query_lower.strip()) > 3:
-          # Filter rows where title, author, or department matches any word in query
           keywords = [w for w in query_lower.split() if len(w) > 2]
           if keywords:
             pattern = "|".join(keywords)
@@ -968,7 +967,7 @@ elif menu == "FAQ Chatbot":
               " currently available in our inventory:\n\n"
           )
           for _, b_row in matched_books.head(5).iterrows():
-            bot_response += f"- **{b_row['Title']}** by *{b_row['Author']}* ({b_row['Department']}, {b_row['Semester']}) — **₹{b_row['Price (₹)'] উ}** [Contact: `{b_row['Contact (WhatsApp/Email)']}`]\n"
+            bot_response += f"- **{b_row['Title']}** by *{b_row['Author']}* ({b_row['Department']}, {b_row['Semester']}) — **₹{b_row['Price (₹)']}** [Contact: `{b_row['Contact (WhatsApp/Email)']}`]\n"
           if len(matched_books) > 5:
             bot_response += (
                 "\n*(Showing top 5 matches. Visit 'Browse available books' to"

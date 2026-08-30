@@ -366,7 +366,7 @@ if menu == "Browse Available Books":
 
             # --- MARK AS SOLD BUTTON & LOGIC ---
             if st.button(
-                "Mark as Sold", key=f"sold_{index}", use_container_width=True
+                "🏷️ Mark as Sold", key=f"sold_{index}", use_container_width=True
             ):
               current_sold_state = st.session_state.get(
                   f"show_pin_box_{index}", False

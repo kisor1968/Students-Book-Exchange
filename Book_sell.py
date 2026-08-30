@@ -874,7 +874,8 @@ elif menu == "App reviews and suggestions":
 elif menu == "FAQ Chatbot":
   st.header("🤖 PJC Textbook Exchange Assistant")
   st.write(
-      "Have questions about how to use the platform? Ask our assistant below!"
+      "Have questions about how to use the platform or looking for a specific"
+      " book? Ask our assistant below!"
   )
 
   if "chatbot_messages" not in st.session_state:
@@ -883,7 +884,7 @@ elif menu == "FAQ Chatbot":
             "role": "assistant",
             "content": (
                 "Hello! I am your PJC Textbook Exchange guide. How can I help"
-                " you today? You can ask me about listing books, finding"
+                " you today? You can ask me about available books, listing"
                 " textbooks, resetting PINs, or contacting sellers."
             ),
         }
@@ -894,7 +895,7 @@ elif menu == "FAQ Chatbot":
       st.markdown(message["content"])
 
   if user_query := st.chat_input(
-      "Ask a question (e.g., 'How do I reset my PIN?')"
+      "Ask a question (e.g., 'Is there any Physics book available?')"
   ):
     st.session_state.chatbot_messages.append(
         {"role": "user", "content": user_query}
@@ -905,103 +906,182 @@ elif menu == "FAQ Chatbot":
     query_lower = user_query.lower()
     bot_response = ""
 
-    if any(
+    # --- DYNAMIC INVENTORY CHECK ---
+    is_inventory_query = any(
         kw in query_lower
         for kw in [
-            "purpose",
-            "what is",
-            "about",
-            "app do",
-            "platform",
-            "exchange",
-            "use it",
-            "how can i use",
-        ]
-    ):
-      bot_response = (
-          "The **PJC Textbook Exchange Platform** is a student welfare"
-          " initiative maintained by Prabhu Jagatbandhu College. It helps"
-          " students pass down their old textbooks to juniors at affordable"
-          " prices or buy what they need directly from seniors sustainably!"
-      )
-    elif any(
-        kw in query_lower
-        for kw in [
-            "buy",
-            "purchase",
-            "get a book",
+            "available",
+            "stock",
+            "have",
+            "list",
+            "book for",
+            "physics",
+            "chemistry",
+            "mathematics",
+            "sem",
+            "semester",
             "find",
-            "browse",
             "search",
         ]
-    ):
-      bot_response = (
-          "To buy a book, go to **'Browse available books'** from the sidebar."
-          " You can filter listings by department, semester, or search by"
-          " title/author. Once you find a book you like, click the **'📱"
-          " WhatsApp QR'** button to instantly scan and chat with the seller"
-          " on WhatsApp!"
-      )
-    elif any(
-        kw in query_lower for kw in ["list", "sell", "upload", "add book"]
-    ):
-      bot_response = (
-          "To list a book for sale, go to the **'List a book for sale'** section"
-          " from the sidebar. Fill out your book details, price, upload your"
-          " WhatsApp number/email, and set a 4-digit PIN along with a Secret"
-          " Recovery Word."
-      )
-    elif any(
-        kw in query_lower for kw in ["pin", "forgot", "password", "recover"]
-    ):
-      bot_response = (
-          "If you forgot your 4-digit PIN to mark a book as sold or edit it,"
-          " go to **'Browse available books'**, click on your book's"
-          " **'Mark as Sold'** or **'Edit Listing'** button, and click on"
-          " **'🔄 Forgot PIN?'**. Enter your Secret Recovery Word to"
-          " automatically generate a new PIN!"
-      )
-    elif any(
-        kw in query_lower for kw in ["whatsapp", "chat", "contact", "qr"]
-    ):
-      bot_response = (
-          "When browsing books, you can click the **'📱 WhatsApp QR'** button"
-          " next to any listing. It will generate a custom QR code containing a"
-          " pre-filled message that you can scan with your phone camera to"
-          " chat directly with the seller on WhatsApp."
-      )
-    elif any(
-        kw in query_lower for kw in ["sold", "remove", "status", "delete"]
-    ):
-      bot_response = (
-          "To mark a book as sold, navigate to **'Browse available"
-          " books'**, click **'Mark as Sold'** on your listing, and enter your"
-          " 4-digit seller PIN to securely update its status."
-      )
-    elif any(
-        kw in query_lower
-        for kw in ["department", "departments", "streams", "subjects", "how many"]
-    ):
-      bot_response = (
-          f"There are **{len(departments_list)} departments** listed on the"
-          " platform, covering Science, Arts, Commerce, and professional"
-          " courses like BBA and Law. You can view them all when listing or"
-          " filtering books!"
-      )
-    elif any(kw in query_lower for kw in ["college", "prabhu", "pjc", "where"]):
-      bot_response = (
-          "This platform is maintained by **Prabhu Jagatbandhu College**"
-          " (Andul-Mouri, Howrah, Pin-711302) as a student welfare initiative"
-          " managed by Dr. Kisor Mukhopadhyay to help students pass down books"
-          " sustainably."
-      )
-    else:
-      bot_response = (
-          "I'm not quite sure about that specific query. You can ask me"
-          " questions about **buying books**, **listing books**,"
-          " **departments**, **recovering your PIN**, or **WhatsApp QR"
-          " codes**!"
-      )
+    )
+
+    if is_inventory_query:
+      try:
+        live_df = load_data()
+        available_books = live_df[
+            live_df["Status"].astype(str).str.lower() == "available"
+        ]
+
+        # Check if user asked for a specific department or keyword
+        matched_books = available_books.copy()
+        if len(query_lower.strip()) > 3:
+          # Filter rows where title, author, or department matches any word in query
+          keywords = [w for w in query_lower.split() if len(w) > 2]
+          if keywords:
+            pattern = "|".join(keywords)
+            filtered_match = available_books[
+                available_books["Title"]
+                .astype(str)
+                .str.lower()
+                .str.contains(pattern, na=False)
+                | available_books["Department"]
+                .astype(str)
+                .str.lower()
+                .str.contains(pattern, na=False)
+                | available_books["Semester"]
+                .astype(str)
+                .str.lower()
+                .str.contains(pattern, na=False)
+            ]
+            if not filtered_match.empty:
+              matched_books = filtered_match
+
+        if matched_books.empty:
+          bot_response = (
+              "I checked our active inventory, but I couldn't find any matching"
+              " books right now. You can check the **'Browse available"
+              " books'** page to see all listings!"
+          )
+        else:
+          bot_response = (
+              f"Yes! Here are **{len(matched_books)} matching book(s)**"
+              " currently available in our inventory:\n\n"
+          )
+          for _, b_row in matched_books.head(5).iterrows():
+            bot_response += f"- **{b_row['Title']}** by *{b_row['Author']}* ({b_row['Department']}, {b_row['Semester']}) — **₹{b_row['Price (₹)'] উ}** [Contact: `{b_row['Contact (WhatsApp/Email)']}`]\n"
+          if len(matched_books) > 5:
+            bot_response += (
+                "\n*(Showing top 5 matches. Visit 'Browse available books' to"
+                " see more!)*"
+            )
+      except Exception:
+        bot_response = (
+            "I tried fetching the live inventory but encountered an error."
+            " Please check the **'Browse available books'** section directly!"
+        )
+
+    # --- STANDARD FAQ MATCHING ---
+    if not bot_response:
+      if any(
+          kw in query_lower
+          for kw in [
+              "purpose",
+              "what is",
+              "about",
+              "app do",
+              "platform",
+              "exchange",
+              "use it",
+              "how can i use",
+          ]
+      ):
+        bot_response = (
+            "The **PJC Textbook Exchange Platform** is a student welfare"
+            " initiative maintained by Prabhu Jagatbandhu College. It helps"
+            " students pass down their old textbooks to juniors at affordable"
+            " prices or buy what they need directly from seniors sustainably!"
+        )
+      elif any(
+          kw in query_lower
+          for kw in [
+              "buy",
+              "purchase",
+              "get a book",
+              "browse",
+          ]
+      ):
+        bot_response = (
+            "To buy a book, go to **'Browse available books'** from the sidebar."
+            " You can filter listings by department, semester, or search by"
+            " title/author. Once you find a book you like, click the **'📱"
+            " WhatsApp QR'** button to instantly scan and chat with the seller"
+            " on WhatsApp!"
+        )
+      elif any(
+          kw in query_lower for kw in ["list", "sell", "upload", "add book"]
+      ):
+        bot_response = (
+            "To list a book for sale, go to the **'List a book for sale'**"
+            " section from the sidebar. Fill out your book details, price,"
+            " upload your WhatsApp number/email, and set a 4-digit PIN along"
+            " with a Secret Recovery Word."
+        )
+      elif any(
+          kw in query_lower for kw in ["pin", "forgot", "password", "recover"]
+      ):
+        bot_response = (
+            "If you forgot your 4-digit PIN to mark a book as sold or edit it,"
+            " go to **'Browse available books'**, click on your book's"
+            " **'Mark as Sold'** or **'Edit Listing'** button, and click on"
+            " **'🔄 Forgot PIN?'**. Enter your Secret Recovery Word to"
+            " automatically generate a new PIN!"
+        )
+      elif any(
+          kw in query_lower for kw in ["whatsapp", "chat", "contact", "qr"]
+      ):
+        bot_response = (
+            "When browsing books, you can click the **'📱 WhatsApp QR'** button"
+            " next to any listing. It will generate a custom QR code containing"
+            " a pre-filled message that you can scan with your phone camera to"
+            " chat directly with the seller on WhatsApp."
+        )
+      elif any(
+          kw in query_lower for kw in ["sold", "remove", "status", "delete"]
+      ):
+        bot_response = (
+            "To mark a book as sold, navigate to **'Browse available"
+            " books'**, click **'Mark as Sold'** on your listing, and enter your"
+            " 4-digit seller PIN to securely update its status."
+        )
+      elif any(
+          kw in query_lower
+          for kw in [
+              "department",
+              "departments",
+              "streams",
+              "subjects",
+              "how many",
+          ]
+      ):
+        bot_response = (
+            f"There are **{len(departments_list)} departments** listed on the"
+            " platform, covering Science, Arts, Commerce, and professional"
+            " courses like BBA and Law. You can view them all when listing or"
+            " filtering books!"
+        )
+      elif any(kw in query_lower for kw in ["college", "prabhu", "pjc", "where"]):
+        bot_response = (
+            "This platform is maintained by **Prabhu Jagatbandhu College**"
+            " (Andul-Mouri, Howrah, Pin-711302) as a student welfare initiative"
+            " managed by Dr. Kisor Mukhopadhyay to help students pass down"
+            " books sustainably."
+        )
+      else:
+        bot_response = (
+            "I'm not quite sure about that specific query. You can ask me"
+            " about **available books in stock**, **buying books**, **listing"
+            " books**, **departments**, or **recovering your PIN**!"
+        )
 
     st.session_state.chatbot_messages.append(
         {"role": "assistant", "content": bot_response}

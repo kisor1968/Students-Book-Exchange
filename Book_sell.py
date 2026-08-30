@@ -279,6 +279,7 @@ menu = st.sidebar.radio(
         "Browse available books",
         "List a book for sale",
         "App reviews and suggestions",
+        "FAQ Chatbot",
     ],
 )
 
@@ -720,7 +721,7 @@ elif menu == "List a book for sale":
     st.caption(
         "⚠️ Note: All listings are monitored. Uploading abusive, plagiarized,"
         " or inappropriate material will result in a permanent ban and reporting"
-        " to college/institution authorities."
+        " to college authorities."
     )
 
     if submitted:
@@ -829,7 +830,6 @@ elif menu == "App reviews and suggestions":
           )
         else:
           try:
-            # Timestamp using Indian Standard Time (IST)
             ist_time = datetime.now(ZoneInfo("Asia/Kolkata")).strftime(
                 "%Y-%m-%d %H:%M:%S"
             )
@@ -869,7 +869,100 @@ elif menu == "App reviews and suggestions":
           st.divider()
 
 # ==========================================
-# 4. ABOUT SECTION
+# 4. FAQ CHATBOT SECTION
+# ==========================================
+elif menu == "FAQ Chatbot":
+  st.header("🤖 PJC Textbook Exchange Assistant")
+  st.write(
+      "Have questions about how to use the platform? Ask our assistant below!"
+  )
+
+  if "chatbot_messages" not in st.session_state:
+    st.session_state.chatbot_messages = [
+        {
+            "role": "assistant",
+            "content": (
+                "Hello! I am your PJC Textbook Exchange guide. How can I help"
+                " you today? You can ask me about listing books, finding"
+                " textbooks, resetting PINs, or contacting sellers."
+            ),
+        }
+    ]
+
+  for message in st.session_state.chatbot_messages:
+    with st.chat_message(message["role"]):
+      st.markdown(message["content"])
+
+  if user_query := st.chat_input(
+      "Ask a question (e.g., 'How do I reset my PIN?')"
+  ):
+    st.session_state.chatbot_messages.append(
+        {"role": "user", "content": user_query}
+    )
+    with st.chat_message("user"):
+      st.markdown(user_query)
+
+    query_lower = user_query.lower()
+    bot_response = ""
+
+    if any(
+        kw in query_lower for kw in ["list", "sell", "upload", "add book"]
+    ):
+      bot_response = (
+          "To list a book for sale, go to the **'List a book for sale'** section"
+          " from the sidebar. Fill out your book details, price, upload your"
+          " WhatsApp number/email, and set a 4-digit PIN along with a Secret"
+          " Recovery Word."
+      )
+    elif any(
+        kw in query_lower for kw in ["pin", "forgot", "password", "recover"]
+    ):
+      bot_response = (
+          "If you forgot your 4-digit PIN to mark a book as sold or edit it,"
+          " go to **'Browse available books'**, click on your book's"
+          " **'Mark as Sold'** or **'Edit Listing'** button, and click on"
+          " **'🔄 Forgot PIN?'**. Enter your Secret Recovery Word to"
+          " automatically generate a new PIN!"
+      )
+    elif any(
+        kw in query_lower for kw in ["whatsapp", "chat", "contact", "qr"]
+    ):
+      bot_response = (
+          "When browsing books, you can click the **'📱 WhatsApp QR'** button"
+          " next to any listing. It will generate a custom QR code containing a"
+          " pre-filled message that you can scan with your phone camera to"
+          " chat directly with the seller on WhatsApp."
+      )
+    elif any(
+        kw in query_lower for kw in ["sold", "remove", "status", "delete"]
+    ):
+      bot_response = (
+          "To mark a book as sold, navigate to **'Browse available"
+          " books'**, click **'Mark as Sold'** on your listing, and enter your"
+          " 4-digit seller PIN to securely update its status."
+      )
+    elif any(kw in query_lower for kw in ["college", "prabhu", "pjc", "where"]):
+      bot_response = (
+          "This platform is maintained by **Prabhu Jagatbandhu College**"
+          " (Andul-Mouri, Howrah, Pin-711302) as a student welfare initiative"
+          " managed by Dr. Kisor Mukhopadhyay to help students pass down books"
+          " sustainably."
+      )
+    else:
+      bot_response = (
+          "I'm not quite sure about that specific query. You can ask me"
+          " questions about **listing books**, **recovering your PIN**, **using"
+          " WhatsApp QR codes**, or **marking books as sold**!"
+      )
+
+    st.session_state.chatbot_messages.append(
+        {"role": "assistant", "content": bot_response}
+    )
+    with st.chat_message("assistant"):
+      st.markdown(bot_response)
+
+# ==========================================
+# 5. ABOUT SECTION
 # ==========================================
 else:
   st.header("ℹ️ About PJC Textbook Exchange")

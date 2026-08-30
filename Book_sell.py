@@ -51,6 +51,83 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive",
 ]
 
+wb_districts = [
+    "Alipurduar",
+    "Arambagh",
+    "Bankura",
+    "Basirhat",
+    "Birbhum",
+    "Cooch Behar",
+    "Dakshin Dinajpur",
+    "Darjeeling",
+    "Hooghly",
+    "Howrah",
+    "Jalpaiguri",
+    "Jangipur",
+    "Jhargram",
+    "Kalimpong",
+    "Kolkata",
+    "Malda",
+    "Murshidabad",
+    "Nadia",
+    "North 24 Parganas",
+    "Paschim Bardhaman",
+    "Paschim Medinipur",
+    "Purba Bardhaman",
+    "Purba Medinipur",
+    "Purulia",
+    "South 24 Parganas",
+    "Sundarban",
+    "Uttar Dinajpur",
+]
+
+departments_list = sorted([
+    "Physics",
+    "Mathematics",
+    "Chemistry",
+    "Computer Science",
+    "Zoology",
+    "Botany",
+    "Anthropology",
+    "Food & Nutrition",
+    "Electronics",
+    "Bengali",
+    "English",
+    "History",
+    "Geography",
+    "Philosophy",
+    "Physical Education",
+    "Sanskrit",
+    "Education",
+    "Sociology",
+    "Psychology",
+    "Microbiology",
+    "Biotechnology / Biochemistry",
+    "Environmental Science",
+    "Statistics",
+    "Geology",
+    "Journalism & Mass Communication",
+    "Library & Information Science",
+    "Urdu",
+    "Hindi",
+    "Arabic",
+    "Law / B.A. LL.B.",
+    "Business Administration (BBA)",
+    "Commerce / Accountancy",
+    "General / Other",
+])
+
+semesters_list = [
+    "1st Semester",
+    "2nd Semester",
+    "3rd Semester",
+    "4th Semester",
+    "5th Semester",
+    "6th Semester",
+    "7th Semester",
+    "8th Semester",
+]
+
 
 def contains_profanity(text):
   banned_words = [
@@ -326,38 +403,112 @@ if menu == "Browse Available Books":
 
             if st.session_state.get(f"authorized_edit_{index}", False):
               with st.form(key=f"update_form_{index}"):
-                st.markdown("**Update Details:**")
-                new_title = st.text_input("Title", value=row["Title"])
-                new_author = st.text_input("Author", value=row["Author"])
+                st.markdown("**Update All Details:**")
+                new_title = st.text_input("Book Title", value=row["Title"])
+                new_author = st.text_input(
+                    "Author / Publisher", value=row["Author"]
+                )
+
+                curr_dept = (
+                    row["Department"]
+                    if row["Department"] in departments_list
+                    else departments_list[0]
+                )
+                new_dept = st.selectbox(
+                    "Department / Stream",
+                    departments_list,
+                    index=departments_list.index(curr_dept),
+                )
+
+                curr_sem = (
+                    row["Semester"]
+                    if row["Semester"] in semesters_list
+                    else semesters_list[0]
+                )
+                new_sem = st.selectbox(
+                    "Target Semester",
+                    semesters_list,
+                    index=semesters_list.index(curr_sem),
+                )
+
+                curr_dist = (
+                    row["District"]
+                    if "District" in row and row["District"] in wb_districts
+                    else wb_districts[0]
+                )
+                new_dist = st.selectbox(
+                    "District",
+                    wb_districts,
+                    index=wb_districts.index(curr_dist),
+                )
+
+                new_inst = st.text_input(
+                    "Institution / Other",
+                    value=row.get("Institution", ""),
+                )
                 new_price = st.number_input(
-                    "Price (₹)",
+                    "Expected Price (₹)",
                     min_value=0,
                     value=int(row["Price (₹)"])
                     if pd.notna(row["Price (₹)"])
                     else 100,
                 )
+
+                cond_options = ["Like New", "Good", "Fair / Heavily Used"]
+                curr_cond = (
+                    row["Condition"]
+                    if row["Condition"] in cond_options
+                    else cond_options[0]
+                )
                 new_cond = st.selectbox(
-                    "Condition",
-                    ["Like New", "Good", "Fair / Heavily Used"],
-                    index=["Like New", "Good", "Fair / Heavily Used"].index(
-                        row["Condition"]
-                    )
-                    if row["Condition"]
-                    in ["Like New", "Good", "Fair / Heavily Used"]
-                    else 0,
+                    "Book Condition",
+                    cond_options,
+                    index=cond_options.index(curr_cond),
                 )
 
-                update_submitted = st.form_submit_button("Save Changes")
+                new_seller_name = st.text_input(
+                    "Your Full Name", value=row["Seller Name"]
+                )
+                new_contact = st.text_input(
+                    "Your WhatsApp Number or Email",
+                    value=row["Contact (WhatsApp/Email)"],
+                )
+                new_pin = st.text_input(
+                    "Update 4-digit PIN (Leave as is or change)",
+                    value=str(row.get("PIN", "")),
+                    type="password",
+                    max_chars=4,
+                )
+                new_secret = st.text_input(
+                    "Update Secret Recovery Word",
+                    value=str(row.get("Secret Word", "")),
+                    type="password",
+                )
+
+                update_submitted = st.form_submit_button("Save All Changes")
                 if update_submitted:
                   try:
                     full_df = load_data()
                     full_df.at[index, "Title"] = new_title
                     full_df.at[index, "Author"] = new_author
+                    full_df.at[index, "Department"] = new_dept
+                    full_df.at[index, "Semester"] = new_sem
+                    full_df.at[index, "District"] = new_dist
+                    full_df.at[index, "Institution"] = new_inst
                     full_df.at[index, "Price (₹)"] = new_price
                     full_df.at[index, "Condition"] = new_cond
+                    full_df.at[index, "Seller Name"] = new_seller_name
+                    full_df.at[index, "Contact (WhatsApp/Email)"] = new_contact
+                    if new_pin.strip():
+                      full_df.at[index, "PIN"] = str(new_pin).strip()
+                    if new_secret.strip():
+                      full_df.at[index, "Secret Word"] = (
+                          str(new_secret).strip().lower()
+                      )
+
                     update_data(full_df)
                     st.session_state.books_db = full_df
-                    st.success("Listing updated successfully!")
+                    st.success("Listing fully updated successfully!")
                     st.session_state[f"authorized_edit_{index}"] = False
                     st.session_state[f"show_edit_box_{index}"] = False
                     st.rerun()
@@ -448,93 +599,14 @@ if menu == "Browse Available Books":
 elif menu == "List a Book for Sale":
   st.header("📝 Sell Your Old Textbooks")
 
-  wb_districts = [
-      "Alipurduar",
-      "Arambagh",
-      "Bankura",
-      "Basirhat",
-      "Birbhum",
-      "Cooch Behar",
-      "Dakshin Dinajpur",
-      "Darjeeling",
-      "Hooghly",
-      "Howrah",
-      "Jalpaiguri",
-      "Jangipur",
-      "Jhargram",
-      "Kalimpong",
-      "Kolkata",
-      "Malda",
-      "Murshidabad",
-      "Nadia",
-      "North 24 Parganas",
-      "Paschim Bardhaman",
-      "Paschim Medinipur",
-      "Purba Bardhaman",
-      "Purba Medinipur",
-      "Purulia",
-      "South 24 Parganas",
-      "Sundarban",
-      "Uttar Dinajpur",
-  ]
-
   with st.form("book_list_form"):
     col1, col2 = st.columns(2)
 
     with col1:
       title = st.text_input("Book Title*")
       author = st.text_input("Author / Publisher*")
-      department = st.selectbox(
-          "Department / Stream*",
-          sorted([
-              "Physics",
-              "Mathematics",
-              "Chemistry",
-              "Computer Science",
-              "Zoology",
-              "Botany",
-              "Anthropology",
-              "Food & Nutrition",
-              "Electronics",
-              "Bengali",
-              "English",
-              "History",
-              "Geography",
-              "Philosophy",
-              "Physical Education",
-              "Sanskrit",
-              "Education",
-              "Sociology",
-              "Psychology",
-              "Microbiology",
-              "Biotechnology / Biochemistry",
-              "Environmental Science",
-              "Statistics",
-              "Geology",
-              "Journalism & Mass Communication",
-              "Library & Information Science",
-              "Urdu",
-              "Hindi",
-              "Arabic",
-              "Law / B.A. LL.B.",
-              "Business Administration (BBA)",
-              "Commerce / Accountancy",
-              "General / Other",
-          ]),
-      )
-      semester = st.selectbox(
-          "Target Semester*",
-          [
-              "1st Semester",
-              "2nd Semester",
-              "3rd Semester",
-              "4th Semester",
-              "5th Semester",
-              "6th Semester",
-              "7th Semester",
-              "8th Semester",
-          ],
-      )
+      department = st.selectbox("Department / Stream*", departments_list)
+      semester = st.selectbox("Target Semester*", semesters_list)
       district = st.selectbox("Select District*", options=wb_districts)
 
     with col2:

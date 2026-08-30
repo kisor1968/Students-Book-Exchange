@@ -352,37 +352,43 @@ if menu == "Browse Available Books":
             st.markdown("### ")
             contact_info = str(row["Contact (WhatsApp/Email)"]).strip()
 
-            if "@" in contact_info:
-              pass
-            else:
-              clean_num = re.sub(r"\D", "", contact_info)
-              if len(clean_num) >= 10:
-                wa_num = "91" + clean_num if len(clean_num) == 10 else clean_num
-                wa_text = f"Hi {row['Seller Name']}, I am interested in your textbook '{row['Title']}' listed on PJC Textbook Exchange."
-                wa_url = (
-                    f"https://wa.me/{wa_num}?text={wa_text.replace(' ', '%20')}"
+            # Smart parsing to handle comma-separated contacts (e.g. email, phone)
+            parts = [p.strip() for p in contact_info.split(",")]
+            phone_part = ""
+            for part in parts:
+              cleaned_digits = re.sub(r"\D", "", part)
+              if len(cleaned_digits) >= 10:
+                phone_part = cleaned_digits
+                break
+
+            if phone_part:
+              clean_num = phone_part
+              wa_num = "91" + clean_num if len(clean_num) == 10 else clean_num
+              wa_text = f"Hi {row['Seller Name']}, I am interested in your textbook '{row['Title']}' listed on PJC Textbook Exchange."
+              wa_url = (
+                  f"https://wa.me/{wa_num}?text={wa_text.replace(' ', '%20')}"
+              )
+
+              if st.button(
+                  "📱 WhatsApp QR", key=f"qr_btn_{index}", use_container_width=True
+              ):
+                st.session_state[f"show_qr_{index}"] = not st.session_state.get(
+                    f"show_qr_{index}", False
                 )
 
-                if st.button(
-                    "📱 WhatsApp QR", key=f"qr_btn_{index}", use_container_width=True
-                ):
-                  st.session_state[f"show_qr_{index}"] = not st.session_state.get(
-                      f"show_qr_{index}", False
-                  )
-
-                if st.session_state.get(f"show_qr_{index}", False):
-                  st.markdown(
-                      """
-                                <div style="background-color: rgba(220, 225, 235, 0.65); padding: 8px; border-radius: 8px; border: 1px solid rgba(200, 205, 215, 0.8); text-align: center; margin-top: 5px; margin-bottom: 5px;">
-                                    <p style="margin: 0; font-size: 11px; color: #145A32; font-weight: bold;">SCAN TO CHAT</p>
-                                </div>
-                                """,
-                      unsafe_allow_html=True,
-                  )
-                  img = qrcode.make(wa_url)
-                  buf = BytesIO()
-                  img.save(buf, format="PNG")
-                  st.image(buf.getvalue(), width=130, caption="Scan with phone")
+              if st.session_state.get(f"show_qr_{index}", False):
+                st.markdown(
+                    """
+                            <div style="background-color: rgba(220, 225, 235, 0.65); padding: 8px; border-radius: 8px; border: 1px solid rgba(200, 205, 215, 0.8); text-align: center; margin-top: 5px; margin-bottom: 5px;">
+                                <p style="margin: 0; font-size: 11px; color: #145A32; font-weight: bold;">SCAN TO CHAT</p>
+                            </div>
+                            """,
+                    unsafe_allow_html=True,
+                )
+                img = qrcode.make(wa_url)
+                buf = BytesIO()
+                img.save(buf, format="PNG")
+                st.image(buf.getvalue(), width=130, caption="Scan with phone")
 
             # --- EDIT LISTING BUTTON & LOGIC ---
             if st.button(

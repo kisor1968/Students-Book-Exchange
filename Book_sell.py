@@ -720,7 +720,7 @@ elif menu == "List a book for sale":
     st.caption(
         "⚠️ Note: All listings are monitored. Uploading abusive, plagiarized,"
         " or inappropriate material will result in a permanent ban and reporting"
-        " to college authorities."
+        " to college/institution authorities."
     )
 
     if submitted:

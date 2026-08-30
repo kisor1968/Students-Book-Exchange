@@ -160,7 +160,7 @@ menu = st.sidebar.selectbox(
 )
 
 # ==========================================
-# 1. BROWSE & MARK AS SOLD SECTION
+# 1. BROWSE, EDIT & MARK AS SOLD SECTION
 # ==========================================
 if menu == "Browse Available Books":
   st.header("📖 Browse Available Textbooks")
@@ -286,13 +286,77 @@ if menu == "Browse Available Books":
                   img.save(buf, format="PNG")
                   st.image(buf.getvalue(), width=130, caption="Scan with phone")
 
-            # Secure PIN-Protected "Mark as Sold" Process
+            # --- EDIT LISTING BUTTON & LOGIC ---
+            if st.button(
+                "✏️ Edit Listing", key=f"edit_btn_{index}", use_container_width=True
+            ):
+              st.session_state[f"show_edit_box_{index}"] = not st.session_state.get(
+                  f"show_edit_box_{index}", False
+              )
+              st.session_state[f"show_pin_box_{index}"] = False
+
+            if st.session_state.get(f"show_edit_box_{index}", False):
+              edit_pin = st.text_input(
+                  "Enter PIN to Edit:",
+                  type="password",
+                  max_chars=4,
+                  key=f"edit_pin_input_{index}",
+              )
+              if st.button("Verify & Edit", key=f"verify_edit_{index}"):
+                saved_pin = str(row.get("PIN", "")).strip()
+                if saved_pin and str(edit_pin).strip() == saved_pin:
+                  st.session_state[f"authorized_edit_{index}"] = True
+                else:
+                  st.error("Incorrect PIN!")
+
+            if st.session_state.get(f"authorized_edit_{index}", False):
+              with st.form(key=f"update_form_{index}"):
+                st.markdown("**Update Details:**")
+                new_title = st.text_input("Title", value=row["Title"])
+                new_author = st.text_input("Author", value=row["Author"])
+                new_price = st.number_input(
+                    "Price (₹)",
+                    min_value=0,
+                    value=int(row["Price (₹)"])
+                    if pd.notna(row["Price (₹)"])
+                    else 100,
+                )
+                new_cond = st.selectbox(
+                    "Condition",
+                    ["Like New", "Good", "Fair / Heavily Used"],
+                    index=["Like New", "Good", "Fair / Heavily Used"].index(
+                        row["Condition"]
+                    )
+                    if row["Condition"]
+                    in ["Like New", "Good", "Fair / Heavily Used"]
+                    else 0,
+                )
+
+                update_submitted = st.form_submit_button("Save Changes")
+                if update_submitted:
+                  try:
+                    full_df = load_data()
+                    full_df.at[index, "Title"] = new_title
+                    full_df.at[index, "Author"] = new_author
+                    full_df.at[index, "Price (₹)"] = new_price
+                    full_df.at[index, "Condition"] = new_cond
+                    update_data(full_df)
+                    st.session_state.books_db = full_df
+                    st.success("Listing updated successfully!")
+                    st.session_state[f"authorized_edit_{index}"] = False
+                    st.session_state[f"show_edit_box_{index}"] = False
+                    st.rerun()
+                  except Exception as e:
+                    st.error(f"Error updating listing: {e}")
+
+            # --- MARK AS SOLD BUTTON & LOGIC ---
             if st.button(
                 "Mark as Sold", key=f"sold_{index}", use_container_width=True
             ):
               st.session_state[f"show_pin_box_{index}"] = not st.session_state.get(
                   f"show_pin_box_{index}", False
               )
+              st.session_state[f"show_edit_box_{index}"] = False
 
             if st.session_state.get(f"show_pin_box_{index}", False):
               entered_pin = st.text_input(
@@ -303,10 +367,7 @@ if menu == "Browse Available Books":
               )
               if st.button("Confirm Sold", key=f"confirm_sold_{index}"):
                 saved_pin = str(row.get("PIN", "")).strip()
-                if (
-                    saved_pin
-                    and str(entered_pin).strip() == saved_pin
-                ):
+                if saved_pin and str(entered_pin).strip() == saved_pin:
                   try:
                     full_df = load_data()
                     full_df.at[index, "Status"] = "Sold"
@@ -433,7 +494,7 @@ elif menu == "List a Book for Sale":
           placeholder="e.g., Prabhu Jagatbandhu College",
       )
       seller_pin = st.text_input(
-          "Set a 4-digit PIN to close this listing*",
+          "Set a 4-digit PIN to close/edit this listing*",
           type="password",
           max_chars=4,
           placeholder="e.g. 1234",

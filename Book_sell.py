@@ -414,7 +414,15 @@ elif menu == "List a Book for Sale":
           "Institution / Other*",
           placeholder="e.g., Prabhu Jagatbandhu College",
       )
-
+     # -------------------------------------------------------------
+      # INSERT THE PIN FIELD RIGHT HERE:
+      # -------------------------------------------------------------
+      seller_pin = st.text_input(
+          "Set a 4-digit PIN to close this listing*",
+          type="password",
+          max_chars=4,
+          placeholder="e.g. 1234",
+      )
     submitted = st.form_submit_button("Post Listing")
     st.caption(
         "⚠️ Note: All listings are monitored. Uploading abusive, plagiarized,"

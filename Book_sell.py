@@ -254,14 +254,30 @@ if menu == "Browse Available Books":
             
             contact_info = str(row['Contact (WhatsApp/Email)']).strip()
             
-            # Use an expander or text box for foolproof contact viewing & copying
-            with st.expander("📱 Get Contact Info"):
-                st.write(f"**Seller:** {row['Seller Name']}")
-                st.code(contact_info, language=None)
-                if "@" in contact_info:
-                    st.caption("Copy email address above to contact.")
-                else:
-                    st.caption("Copy phone number for WhatsApp/Call.")
+            # Check if it's an email or phone number
+            if "@" in contact_info:
+                # Clean mailto button that works via HTML anchor target
+                email_html = f"""
+                <a href="mailto:{contact_info}?subject=Inquiry%20about%20{row['Title']}" 
+                   style="display: block; text-align: center; background-color: #145A32; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none; font-weight: bold; margin-bottom: 8px;">
+                   ✉️ Send Email
+                </a>
+                """
+                st.markdown(email_html, unsafe_allow_html=True)
+            else:
+                import re
+                clean_num = re.sub(r'\D', '', contact_info)
+                if len(clean_num) >= 10:
+                    wa_num = "91" + clean_num if len(clean_num) == 10 else clean_num
+                    wa_text = f"Hi {row['Seller Name']}, I am interested in your textbook '{row['Title']}' listed on PJC Textbook Exchange. Is it available?"
+                    
+                    wa_html = f"""
+                    <a href="https://wa.me/{wa_num}?text={wa_text.replace(' ', '%20')}" target="_blank"
+                       style="display: block; text-align: center; background-color: #25D366; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none; font-weight: bold; margin-bottom: 8px;">
+                       💬 Chat on WhatsApp
+                    </a>
+                    """
+                    st.markdown(wa_html, unsafe_allow_html=True)
 
             # Keep the "Mark as Sold" button
             if st.button("Mark as Sold", key=f"sold_{index}", use_container_width=True):

@@ -454,6 +454,7 @@ elif menu == "List a Book for Sale":
                   "Condition": condition,
                   "Seller Name": seller_name,
                   "Contact (WhatsApp/Email)": contact,
+                  "PIN": seller_pin,
                   "Date Posted": datetime.now().strftime("%Y-%m-%d"),
               }
           ])

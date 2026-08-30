@@ -183,8 +183,8 @@ def update_data(df):
   client = get_gspread_client()
   spreadsheet_url = "https://docs.google.com/spreadsheets/d/1nOYLY09PtuhZYuAEKED8Y5jSKTz1e4Bulh4mWtEsJbY/edit?gid=0#gid=0"
   sheet = client.open_by_url(spreadsheet_url).worksheet("Sheet1")
-  sheet.clear()
-  sheet.update([df.columns.values.tolist()] + df.values.tolist())
+  # Safely update values starting from cell A1 without clearing the whole sheet first
+  sheet.update([df.columns.values.tolist()] + df.values.tolist(), "A1")
 
 
 if "books_db" not in st.session_state:

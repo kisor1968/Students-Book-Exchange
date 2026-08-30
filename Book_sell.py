@@ -3,6 +3,7 @@ from datetime import datetime
 from io import BytesIO
 import random
 import re
+from zoneinfo import ZoneInfo
 import gspread
 from google.oauth2.service_account import Credentials
 import pandas as pd
@@ -757,7 +758,9 @@ elif menu == "List a book for sale":
                   "Condition": condition,
                   "Seller Name": seller_name,
                   "Contact (WhatsApp/Email)": contact,
-                  "Date Posted": datetime.now().strftime("%Y-%m-%d"),
+                  "Date Posted": datetime.now(ZoneInfo("Asia/Kolkata")).strftime(
+                      "%Y-%m-%d"
+                  ),
                   "PIN": str(seller_pin).strip(),
                   "Secret Word": str(secret_word).strip().lower(),
               }
@@ -826,9 +829,13 @@ elif menu == "App reviews and suggestions":
           )
         else:
           try:
+            # Timestamp using Indian Standard Time (IST)
+            ist_time = datetime.now(ZoneInfo("Asia/Kolkata")).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
             new_review_df = pd.DataFrame([
                 {
-                    "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                    "Timestamp": ist_time,
                     "Name": rev_name.strip(),
                     "Department": rev_dept,
                     "Rating": rev_rating,

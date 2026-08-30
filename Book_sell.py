@@ -257,10 +257,9 @@ if menu == "Browse Available Books":
             if "@" in contact_info:
               st.markdown(
                   f"""
-                            <div style="background-color: #f4f6f5; padding: 10px; border-radius: 6px; border: 1px solid #d1d8d3; text-align: center; margin-bottom: 8px;">
-                                <p style="margin: 0 0 5px 0; font-size: 12px; color: #145A32; font-weight: bold;">PREFERRED CONTACT</p>
-                                <p style="margin: 0; font-size: 13px; color: #333;">✉️ <b>Email Seller</b></p>
-                                <p style="margin: 5px 0 0 0; font-size: 11px; color: #666; word-break: break-all;">{contact_info}</p>
+                            <div style="background-color: rgba(220, 225, 235, 0.65); padding: 12px; border-radius: 10px; border: 1px solid rgba(200, 205, 215, 0.8); text-align: center; margin-bottom: 8px;">
+                                <p style="margin: 0 0 4px 0; font-size: 13px; color: #145A32; font-weight: bold;">📱 Contact:</p>
+                                <p style="margin: 0; font-size: 12px; color: #333; font-family: monospace; word-break: break-all;">{contact_info}</p>
                             </div>
                             """,
                   unsafe_allow_html=True,
@@ -282,12 +281,18 @@ if menu == "Browse Available Books":
                   )
 
                 if st.session_state.get(f"show_qr_{index}", False):
+                  st.markdown(
+                      """
+                                <div style="background-color: rgba(220, 225, 235, 0.65); padding: 8px; border-radius: 8px; border: 1px solid rgba(200, 205, 215, 0.8); text-align: center; margin-top: 5px; margin-bottom: 5px;">
+                                    <p style="margin: 0; font-size: 11px; color: #145A32; font-weight: bold;">SCAN TO CHAT</p>
+                                </div>
+                                """,
+                      unsafe_allow_html=True,
+                  )
                   img = qrcode.make(wa_url)
                   buf = BytesIO()
                   img.save(buf, format="PNG")
-                  st.image(
-                      buf.getvalue(), width=130, caption="Scan to Chat"
-                  )
+                  st.image(buf.getvalue(), width=130, caption="Scan with phone")
               else:
                 st.caption(f"📞 Contact: {contact_info}")
 

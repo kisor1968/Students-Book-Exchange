@@ -625,10 +625,12 @@ if menu == "Browse Available Books":
                   full_df.at[index, "Contact (WhatsApp/Email)"] = new_contact
 
                   if new_book_image is not None:
-                    encoded_img = base64.b64encode(
-                        new_book_image.getvalue()
-                    ).decode("utf-8")
-                    full_df.at[index, "Book Image"] = encoded_img
+                    img_bytes = new_book_image.getvalue()
+                    if len(img_bytes) > 35000: # rough byte limit to stay under 50k base64 chars
+                      st.warning("⚠️ Image file is too large for Google Sheets storage (limit ~35KB). Please upload a smaller or compressed image.")
+                    else:
+                      encoded_img = base64.b64encode(img_bytes).decode("utf-8")
+                      full_df.at[index, "Book Image"] = encoded_img
 
                   if new_pin.strip():
                     full_df.at[index, "PIN"] = str(new_pin).strip()

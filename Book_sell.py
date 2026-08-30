@@ -304,6 +304,7 @@ elif menu == "List a Book for Sale":
               "Sanskrit",
               "Education",
               "Sociology",
+              "Psychology",
               "Commerce / Accountancy",
               "General / Other",
           ],

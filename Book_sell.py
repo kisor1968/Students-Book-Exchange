@@ -183,7 +183,7 @@ def update_data(df):
   client = get_gspread_client()
   spreadsheet_url = "https://docs.google.com/spreadsheets/d/1nOYLY09PtuhZYuAEKED8Y5jSKTz1e4Bulh4mWtEsJbY/edit?gid=0#gid=0"
   sheet = client.open_by_url(spreadsheet_url).worksheet("Sheet1")
-  # Safely update values starting from cell A1 without clearing the whole sheet first
+  # Safely overwrite without clearing the entire sheet first to prevent data loss on error
   sheet.update([df.columns.values.tolist()] + df.values.tolist(), "A1")
 
 
@@ -626,8 +626,12 @@ if menu == "Browse Available Books":
 
                   if new_book_image is not None:
                     img_bytes = new_book_image.getvalue()
-                    if len(img_bytes) > 35000: # rough byte limit to stay under 50k base64 chars
-                      st.warning("⚠️ Image file is too large for Google Sheets storage (limit ~35KB). Please upload a smaller or compressed image.")
+                    if len(img_bytes) > 35000:
+                      st.warning(
+                          "⚠️ Image file is too large for Google Sheets storage"
+                          " (limit ~35KB). Please upload a smaller or"
+                          " compressed image."
+                      )
                     else:
                       encoded_img = base64.b64encode(img_bytes).decode("utf-8")
                       full_df.at[index, "Book Image"] = encoded_img
@@ -737,9 +741,15 @@ elif menu == "List a Book for Sale":
         try:
           image_base64 = ""
           if book_image is not None:
-            image_base64 = base64.b64encode(book_image.getvalue()).decode(
-                "utf-8"
-            )
+            img_bytes = book_image.getvalue()
+            if len(img_bytes) > 35000:
+              st.error(
+                  "❌ Image file is too large for Google Sheets storage (limit"
+                  " ~35KB). Please upload a smaller image file."
+              )
+              st.stop()
+            else:
+              image_base64 = base64.b64encode(img_bytes).decode("utf-8")
 
           current_df = load_data()
           new_entry = pd.DataFrame([

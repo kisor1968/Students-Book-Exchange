@@ -580,7 +580,8 @@ if menu == "Browse Available Books":
 
               # Optional image upload field for editing
               new_book_image = st.file_uploader(
-                  "Upload New Book Condition Image (Optional)",
+                  "Upload New Book Condition Image (Optional - leaves current"
+                  " image if empty)",
                   type=["png", "jpg", "jpeg"],
               )
 
@@ -601,6 +602,7 @@ if menu == "Browse Available Books":
                   full_df.at[index, "Seller Name"] = new_seller_name
                   full_df.at[index, "Contact (WhatsApp/Email)"] = new_contact
 
+                  # Only update the image if a new one is uploaded; otherwise keep the old one
                   if new_book_image is not None:
                     encoded_img = base64.b64encode(
                         new_book_image.getvalue()

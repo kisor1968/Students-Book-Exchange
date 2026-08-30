@@ -183,7 +183,6 @@ def update_data(df):
   client = get_gspread_client()
   spreadsheet_url = "https://docs.google.com/spreadsheets/d/1nOYLY09PtuhZYuAEKED8Y5jSKTz1e4Bulh4mWtEsJbY/edit?gid=0#gid=0"
   sheet = client.open_by_url(spreadsheet_url).worksheet("Sheet1")
-  # Safely overwrite without clearing the entire sheet first to prevent data loss on error
   sheet.update([df.columns.values.tolist()] + df.values.tolist(), "A1")
 
 
@@ -333,17 +332,6 @@ if menu == "Browse Available Books":
               )
             st.write(f"🏷️ **Price:** ₹{row['Price (₹)']}")
 
-            # Display book image if available
-            img_data = row.get("Book Image", "")
-            if pd.notna(img_data) and str(img_data).strip():
-              try:
-                image_bytes = base64.b64decode(str(img_data))
-                st.image(
-                    image_bytes, width=150, caption="Book Condition Image"
-                )
-              except Exception:
-                pass
-
           with col_b:
             st.markdown(f"**Seller:** {row['Seller Name']}")
             st.info(f"📱 Contact:\n`{row['Contact (WhatsApp/Email)']}`")
@@ -352,7 +340,6 @@ if menu == "Browse Available Books":
             st.markdown("### ")
             contact_info = str(row["Contact (WhatsApp/Email)"]).strip()
 
-            # Smart parsing to handle comma-separated contacts (e.g. email, phone)
             parts = [p.strip() for p in contact_info.split(",")]
             phone_part = ""
             for part in parts:
@@ -418,7 +405,6 @@ if menu == "Browse Available Books":
                 else:
                   st.error("Incorrect PIN!")
 
-              # --- FORGOT PIN FOR EDIT ---
               if st.button("🔄 Forgot PIN?", key=f"forgot_edit_btn_{index}"):
                 st.session_state[f"show_forgot_box_{index}"] = (
                     not st.session_state.get(
@@ -470,7 +456,6 @@ if menu == "Browse Available Books":
                 else:
                   st.error("Incorrect PIN! Action denied.")
 
-              # --- FORGOT PIN FOR SOLD ---
               if st.button("🔄 Forgot PIN?", key=f"forgot_sold_btn_{index}"):
                 st.session_state[f"show_forgot_box_{index}"] = (
                     not st.session_state.get(
@@ -479,7 +464,7 @@ if menu == "Browse Available Books":
                 )
                 st.rerun()
 
-            # --- SHARED SECRET RECOVERY BOX (WORKS FOR BOTH) ---
+            # --- SHARED SECRET RECOVERY BOX ---
             if st.session_state.get(f"show_forgot_box_{index}", False):
               st.markdown("---")
               secret_input = st.text_input(
@@ -607,12 +592,6 @@ if menu == "Browse Available Books":
                     type="password",
                 )
 
-              new_book_image = st.file_uploader(
-                  "Upload New Book Condition Image (Optional - leaves current"
-                  " image if empty)",
-                  type=["png", "jpg", "jpeg"],
-              )
-
               update_submitted = st.form_submit_button(
                   "💾 Save All Changes", use_container_width=True
               )
@@ -630,18 +609,6 @@ if menu == "Browse Available Books":
                   full_df.at[index, "Seller Name"] = new_seller_name
                   full_df.at[index, "Contact (WhatsApp/Email)"] = new_contact
 
-                  if new_book_image is not None:
-                    img_bytes = new_book_image.getvalue()
-                    if len(img_bytes) > 35000:
-                      st.warning(
-                          "⚠️ Image file is too large for Google Sheets storage"
-                          " (limit ~35KB). Please upload a smaller or"
-                          " compressed image."
-                      )
-                    else:
-                      encoded_img = base64.b64encode(img_bytes).decode("utf-8")
-                      full_df.at[index, "Book Image"] = encoded_img
-
                   if new_pin.strip():
                     full_df.at[index, "PIN"] = str(new_pin).strip()
                   if new_secret.strip():
@@ -649,7 +616,6 @@ if menu == "Browse Available Books":
                         str(new_secret).strip().lower()
                     )
 
-                  # Explicit dtype assignment to prevent type coercion mismatch
                   full_df["Price (₹)"] = (
                       pd.to_numeric(full_df["Price (₹)"], errors="coerce")
                       .fillna(0)
@@ -713,10 +679,6 @@ elif menu == "List a Book for Sale":
           placeholder="e.g., your pet's name or secret phrase",
       )
 
-    book_image = st.file_uploader(
-        "Upload Book Condition Image (Optional)", type=["png", "jpg", "jpeg"]
-    )
-
     submitted = st.form_submit_button("Post Listing")
     st.caption(
         "⚠️ Note: All listings are monitored. Uploading abusive, plagiarized,"
@@ -745,18 +707,6 @@ elif menu == "List a Book for Sale":
         )
       else:
         try:
-          image_base64 = ""
-          if book_image is not None:
-            img_bytes = book_image.getvalue()
-            if len(img_bytes) > 35000:
-              st.error(
-                  "❌ Image file is too large for Google Sheets storage (limit"
-                  " ~35KB). Please upload a smaller image file."
-              )
-              st.stop()
-            else:
-              image_base64 = base64.b64encode(img_bytes).decode("utf-8")
-
           current_df = load_data()
           new_entry = pd.DataFrame([
               {
@@ -774,7 +724,6 @@ elif menu == "List a Book for Sale":
                   "Date Posted": datetime.now().strftime("%Y-%m-%d"),
                   "PIN": str(seller_pin).strip(),
                   "Secret Word": str(secret_word).strip().lower(),
-                  "Book Image": image_base64,
               }
           ])
 

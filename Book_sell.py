@@ -168,9 +168,14 @@ def load_data():
   sheet = client.open_by_url(spreadsheet_url).worksheet("Sheet1")
   data = sheet.get_all_records()
   df = pd.DataFrame(data)
-  # Ensure Price column is cleanly parsed as numeric to prevent dtype errors
   if "Price (₹)" in df.columns:
-    df["Price (₹)"] = pd.to_numeric(df["Price (₹)"], errors="coerce").fillna(0).astype(int)
+    df["Price (₹)"] = (
+        pd.to_numeric(df["Price (₹)"], errors="coerce").fillna(0).astype(int)
+    )
+  if "PIN" in df.columns:
+    df["PIN"] = df["PIN"].astype(str)
+  if "Secret Word" in df.columns:
+    df["Secret Word"] = df["Secret Word"].astype(str)
   return df
 
 
@@ -442,7 +447,13 @@ if menu == "Browse Available Books":
                   try:
                     full_df = load_data()
                     full_df.at[index, "Status"] = "Sold"
-                    full_df["Price (₹)"] = pd.to_numeric(full_df["Price (₹)"], errors="coerce").fillna(0).astype(int)
+                    full_df["Price (₹)"] = (
+                        pd.to_numeric(full_df["Price (₹)"], errors="coerce")
+                        .fillna(0)
+                        .astype(int)
+                    )
+                    full_df["PIN"] = full_df["PIN"].astype(str)
+                    full_df["Secret Word"] = full_df["Secret Word"].astype(str)
                     update_data(full_df)
                     st.session_state.books_db = full_df
                     st.session_state[f"show_pin_box_{index}"] = False
@@ -480,8 +491,14 @@ if menu == "Browse Available Books":
                   new_random_pin = f"{random.randint(1000, 9999)}"
                   try:
                     full_df = load_data()
-                    full_df.at[index, "PIN"] = new_random_pin
-                    full_df["Price (₹)"] = pd.to_numeric(full_df["Price (₹)"], errors="coerce").fillna(0).astype(int)
+                    full_df.at[index, "PIN"] = str(new_random_pin)
+                    full_df["Price (₹)"] = (
+                        pd.to_numeric(full_df["Price (₹)"], errors="coerce")
+                        .fillna(0)
+                        .astype(int)
+                    )
+                    full_df["PIN"] = full_df["PIN"].astype(str)
+                    full_df["Secret Word"] = full_df["Secret Word"].astype(str)
                     update_data(full_df)
                     st.session_state.books_db = full_df
                     st.success(
@@ -494,7 +511,7 @@ if menu == "Browse Available Books":
                 else:
                   st.error("❌ Incorrect Secret Recovery Word! Access denied.")
 
-          # --- FULL-WIDTH EDIT FORM (UTILIZING THE ENTIRE SPACE BELOW THE LISTING) ---
+          # --- FULL-WIDTH EDIT FORM ---
           if st.session_state.get(f"authorized_edit_{index}", False):
             st.markdown("---")
             with st.form(key=f"update_form_{index}"):
@@ -584,7 +601,6 @@ if menu == "Browse Available Books":
                     type="password",
                 )
 
-              # Optional image upload field for editing
               new_book_image = st.file_uploader(
                   "Upload New Book Condition Image (Optional - leaves current"
                   " image if empty)",
@@ -603,12 +619,11 @@ if menu == "Browse Available Books":
                   full_df.at[index, "Semester"] = new_sem
                   full_df.at[index, "District"] = new_dist
                   full_df.at[index, "Institution"] = new_inst
-                  full_df.at[index, "Price (₹)"] = new_price
+                  full_df.at[index, "Price (₹)"] = int(new_price)
                   full_df.at[index, "Condition"] = new_cond
                   full_df.at[index, "Seller Name"] = new_seller_name
                   full_df.at[index, "Contact (WhatsApp/Email)"] = new_contact
 
-                  # Only update the image if a new one is uploaded; otherwise keep the old one
                   if new_book_image is not None:
                     encoded_img = base64.b64encode(
                         new_book_image.getvalue()
@@ -622,8 +637,14 @@ if menu == "Browse Available Books":
                         str(new_secret).strip().lower()
                     )
 
-                  # Force convert price column back to integer to satisfy dtype
-                  full_df["Price (₹)"] = pd.to_numeric(full_df["Price (₹)"], errors="coerce").fillna(0).astype(int)
+                  # Explicit dtype assignment to prevent type coercion mismatch
+                  full_df["Price (₹)"] = (
+                      pd.to_numeric(full_df["Price (₹)"], errors="coerce")
+                      .fillna(0)
+                      .astype(int)
+                  )
+                  full_df["PIN"] = full_df["PIN"].astype(str)
+                  full_df["Secret Word"] = full_df["Secret Word"].astype(str)
 
                   update_data(full_df)
                   st.session_state.books_db = full_df
@@ -680,7 +701,6 @@ elif menu == "List a Book for Sale":
           placeholder="e.g., your pet's name or secret phrase",
       )
 
-    # Optional image upload field for new listing
     book_image = st.file_uploader(
         "Upload Book Condition Image (Optional)", type=["png", "jpg", "jpeg"]
     )
@@ -741,8 +761,14 @@ elif menu == "List a Book for Sale":
           ])
 
           updated_df = pd.concat([current_df, new_entry], ignore_index=True)
-          updated_df["Price (₹)"] = pd.to_numeric(updated_df["Price (₹)"], errors="coerce").fillna(0).astype(int)
-          
+          updated_df["Price (₹)"] = (
+              pd.to_numeric(updated_df["Price (₹)"], errors="coerce")
+              .fillna(0)
+              .astype(int)
+          )
+          updated_df["PIN"] = updated_df["PIN"].astype(str)
+          updated_df["Secret Word"] = updated_df["Secret Word"].astype(str)
+
           update_data(updated_df)
           st.session_state.books_db = updated_df
 

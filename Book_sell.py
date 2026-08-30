@@ -48,7 +48,15 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive",
 ]
 
-
+def contains_profanity(text):
+    # Add words you want to block (case-insensitive check)
+    banned_words = ["spamword1", "spamword2", "vulgarword"] 
+    text_lower = text.lower()
+    for word in banned_words:
+        if word in text_lower:
+            return True
+    return False
+    
 def get_gspread_client():
   creds_dict = dict(st.secrets["connections"]["gsheets"])
   creds_dict.pop("spreadsheet", None)
@@ -357,8 +365,16 @@ elif menu == "List a Book for Sale":
       )
 
     submitted = st.form_submit_button("Post Listing")
+      st.caption("⚠️ Note: All listings are monitored. Uploading abusive, plagiarized, or inappropriate material will result in a permanent ban and reporting to college authorities.")
 
     if submitted:
+        if submitted:
+        if not title or not author or not seller_name or not contact or not institution:
+            st.error("Please fill in all required fields.")
+        elif contains_profanity(title) or contains_profanity(author):
+            st.error("⚠️ Your submission contains prohibited or inappropriate language. Please review and try again.")
+        else:
+            # Proceed with saving to Google Sheets...
       if not title or not author or not seller_name or not contact or not institution:
         st.error("Please fill in all required fields.")
       else:

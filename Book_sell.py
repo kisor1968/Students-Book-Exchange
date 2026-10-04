@@ -264,7 +264,7 @@ with col_title:
   st.subheader("Campus Textbook Exchange Programme")
 
 st.markdown(
-    "Welcome to the official peer-to-peer textbook marketplace for students. "
+    "Welcome to the official peer-to-peer textbook/reference book marketplace for students. "
     "Pass down your old books to juniors at affordable prices and buy what you"
     " need directly from your seniors!"
 )
@@ -315,7 +315,7 @@ with st.sidebar.expander("How to Use This App"):
 # 1. BROWSE, EDIT & MARK AS SOLD SECTION
 # ==========================================
 if menu == "Browse available books":
-  st.header("📖 Browse Available Textbooks")
+  st.header("📖 Browse Available Text/reference books")
 
   try:
     st.session_state.books_db = load_data()
@@ -711,7 +711,7 @@ if menu == "Browse available books":
 # 2. LIST A BOOK SECTION
 # ==========================================
 elif menu == "List a book for sale":
-  st.header("📝 Sell Your Old Textbooks")
+  st.header("📝 Sell Your Old Textbooks/reference books")
 
   with st.form("book_list_form"):
     col1, col2 = st.columns(2)
@@ -908,7 +908,7 @@ elif menu == "App reviews and suggestions":
 # 4. FAQ CHATBOT SECTION
 # ==========================================
 elif menu == "FAQ Chatbot":
-  st.header("🤖 PJC Textbook Exchange Assistant")
+  st.header("🤖 PJC Textbook/reference book Exchange Assistant")
   st.write(
       "Have questions about how to use the platform or looking for a specific"
       " book? Ask our assistant below!"
@@ -1043,9 +1043,9 @@ elif menu == "FAQ Chatbot":
           ]
       ):
         bot_response = (
-            "The **PJC Textbook Exchange Platform** is a student welfare"
+            "The **PJC Textbook/reference book Exchange Platform** is a student welfare"
             " initiative maintained by Prabhu Jagatbandhu College. It helps"
-            " students pass down their old textbooks to juniors at affordable"
+            " students pass down their old textbooks/reference books to juniors at affordable"
             " prices or buy what they need directly from seniors sustainably!"
         )
       elif any(
@@ -1143,7 +1143,7 @@ elif menu == "FAQ Chatbot":
 else:
   st.header("ℹ️ About PJC Textbook Exchange")
   st.write(
-      "The Campus Textbook Exchange Programme helps PJC students save money by"
+      "The Campus Textbook Exchange Programme helps students of West Bengal to save money by"
       " reusing books sustainably."
   )
 
